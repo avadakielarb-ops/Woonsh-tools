@@ -103,6 +103,7 @@ class App:
         # -- Модули --
 
         from woonsh_tools.companies.panel import CompaniesPanel
+        from woonsh_tools.companies.stats import StatsPanel
         from woonsh_tools.drive.panel import DrivePanel
         from woonsh_tools.profiles.panel import ProfilesPanel
         from woonsh_tools.ads.panel import AdsPanel, ReviewPanel
@@ -114,11 +115,9 @@ class App:
         self.nb.add(self.companies_panel, text="Поиск фирм",
                     group="ПОИСК ФИРМ")
 
-        # 2. Статистика (placeholder — data comes from companies)
-        stats_page = self._placeholder("Статистика",
-            "Сводные показатели по странам:\n"
-            "компании с сайтом, без сайта, PDF, проверки.")
-        self.nb.add(stats_page, text="Статистика", group="ПОИСК ФИРМ")
+        # 2. Статистика
+        self.stats_panel = StatsPanel(self.nb, self)
+        self.nb.add(self.stats_panel, text="Статистика", group="ПОИСК ФИРМ")
 
         # 3. Google Drive
         self.drive_panel = DrivePanel(self.nb, self)
@@ -137,7 +136,7 @@ class App:
         self.nb.add(self.review_panel, text="Проверка", group="GOOGLE ADS")
 
         # 7. Документы
-        self.documents_panel = DocumentsPanel(self.nb, self)
+        self.documents_panel = DocumentsPanel(self.nb, self, self.app_data_dir)
         self.nb.add(self.documents_panel, text="Документы",
                     group="ДОКУМЕНТАЦИЯ")
 
