@@ -1,13 +1,41 @@
 """
-Панели Google Ads: генератор CSV и проверка рекламы.
+Ads CSV panel — UI for batch generation, queue, export.
+From X-File ads_bridge.py, adapted for woonsh_tools.
 """
 
 import json
 import os
+import re
 import threading
+import time
+import zipfile
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
+from tkinter import ttk, filedialog, messagebox
 from pathlib import Path
+from urllib.parse import urlparse
+import queue as queuemod
+
+
+def csv_basename(item):
+    name = (item.get("company") or item.get("name") or "Компания").strip()
+    name = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", name).strip(" .")[:120]
+    name = name.rstrip(" .") or "Компания"
+    if re.fullmatch(
+            r"(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?",
+            name, re.IGNORECASE):
+        name = "_" + name
+    return name
+
+
+def safe_error(message, api_key=""):
+    text = str(message)
+    if api_key:
+        text = text.replace(api_key, "[скрыто]")
+    text = re.sub(r"AIza[\w-]+", "[скрыто]", text)
+    text = re.sub(
+        r"(?i)(key|token|authorization)([=:\s]+)[^\s,;]+",
+        r"\1\2[скрыто]", text)
+    return text[:1200]
 
 
 class AdsPanel(ttk.Frame):
@@ -16,74 +44,71 @@ class AdsPanel(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent, padding=12)
         self.app = app
-        self.stop = threading.Event()
-        self.working = False
-        self.results = []
+        self.app_dir = Path(app.app_data_dir)
+
+        from woonsh_tools.ads import generator as engine
+        self.engine = engine
+        self.engine.HISTORY_DIR = self.app_dir / "ads_history"
+        self.engine.HISTORY_KEEP = 10000
+
+        self.events = queuemod.Queue()
+        self.cancel_batch = threading.Event()
+        self.batch_running = False
+
+        self.queue_path = self.app_dir / "ads_queue.json"
+        self.queue_lock = threading.Lock()
+        try:
+            self.saved_queue = json.loads(
+                self.queue_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            self.saved_queue = []
+
+        self.key_path = self.app_dir / "gemini_key.dpapi"
+        self.settings_path = self.app_dir / "ads_settings.json"
+        try:
+            self.settings = json.loads(
+                self.settings_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            self.settings = {}
 
         self.columnconfigure(0, weight=1)
-        self.rowconfigure(3, weight=1)
+        self.rowconfigure(2, weight=1)
 
         top = ttk.Frame(self)
         top.grid(row=0, column=0, sticky="ew", pady=(0, 8))
         top.columnconfigure(1, weight=1)
 
-        ttk.Label(top, text="Тема кампании:").grid(
+        ttk.Label(top, text="URL сайта:").grid(
             row=0, column=0, sticky="w")
-        self.var_topic = tk.StringVar()
-        ttk.Entry(top, textvariable=self.var_topic).grid(
+        self.var_url = tk.StringVar()
+        ttk.Entry(top, textvariable=self.var_url).grid(
             row=0, column=1, sticky="ew", padx=8)
 
-        ttk.Label(top, text="Страна:").grid(
-            row=1, column=0, sticky="w", pady=(4, 0))
-        self.var_country = tk.StringVar()
-        ttk.Entry(top, textvariable=self.var_country).grid(
-            row=1, column=1, sticky="ew", padx=8, pady=(4, 0))
-
-        ttk.Label(top, text="Язык:").grid(
-            row=2, column=0, sticky="w", pady=(4, 0))
-        self.var_lang = tk.StringVar(value="English")
-        ttk.Entry(top, textvariable=self.var_lang).grid(
-            row=2, column=1, sticky="ew", padx=8, pady=(4, 0))
-
-        opts = ttk.Frame(self)
-        opts.grid(row=1, column=0, sticky="w", pady=(0, 8))
-
-        ttk.Label(opts, text="Кол-во:").pack(side="left")
-        self.var_count = tk.IntVar(value=1)
-        ttk.Spinbox(opts, from_=1, to=20, width=4,
-                     textvariable=self.var_count).pack(side="left", padx=4)
-
-        ttk.Label(opts, text="Режим:").pack(side="left", padx=(12, 0))
-        self.var_mode = tk.StringVar(value="API")
-        ttk.Combobox(opts, textvariable=self.var_mode,
-                     values=["API", "Браузер (CDP)"],
-                     state="readonly", width=16).pack(side="left", padx=4)
-
         buttons = ttk.Frame(self)
-        buttons.grid(row=2, column=0, sticky="w", pady=(0, 8))
-        ttk.Button(buttons, text="Генерировать", style="Accent.TButton",
-                   command=self._generate).pack(side="left")
-        ttk.Button(buttons, text="Стоп",
-                   command=self._stop).pack(side="left", padx=8)
-        ttk.Button(buttons, text="Экспорт CSV",
-                   command=self._export).pack(side="left")
-        ttk.Button(buttons, text="Очистить очередь",
-                   command=self._clear_queue).pack(side="left", padx=8)
+        buttons.grid(row=1, column=0, sticky="w", pady=(0, 8))
+        for title, command in [
+            ("Генерировать", self._generate),
+            ("Остановить", self._cancel),
+            ("Продолжить очередь", self._resume),
+            ("Экспорт CSV…", self._export),
+        ]:
+            ttk.Button(buttons, text=title, command=command).pack(
+                side="left", padx=(0, 6))
 
         tree_frame = ttk.Frame(self)
-        tree_frame.grid(row=3, column=0, sticky="nsew")
+        tree_frame.grid(row=2, column=0, sticky="nsew")
         tree_frame.columnconfigure(0, weight=1)
         tree_frame.rowconfigure(0, weight=1)
+        columns = ("site", "topic", "status")
         self.tree = ttk.Treeview(
-            tree_frame,
-            columns=("topic", "headlines", "status"),
-            show="headings", selectmode="browse")
-        self.tree.heading("topic", text="Тема")
-        self.tree.heading("headlines", text="Заголовки")
-        self.tree.heading("status", text="Статус")
-        self.tree.column("topic", width=200)
-        self.tree.column("headlines", width=500)
-        self.tree.column("status", width=100)
+            tree_frame, columns=columns, show="headings",
+            selectmode="extended")
+        for name, title, width in zip(
+                columns,
+                ["Сайт", "Тематика", "Статус"],
+                [300, 250, 200]):
+            self.tree.heading(name, text=title)
+            self.tree.column(name, width=width)
         vsb = ttk.Scrollbar(tree_frame, orient="vertical",
                             command=self.tree.yview)
         self.tree.configure(yscrollcommand=vsb.set)
@@ -93,128 +118,182 @@ class AdsPanel(ttk.Frame):
         self.status_var = tk.StringVar(value="Готово")
         ttk.Label(self, textvariable=self.status_var,
                   wraplength=700).grid(
-            row=4, column=0, sticky="w", pady=8)
+            row=3, column=0, sticky="w", pady=8)
+        self.progress = ttk.Progressbar(self, mode="determinate")
+        self.progress.grid(row=4, column=0, sticky="we")
 
-        self._load_results()
+        self._next_refresh = 0
+        self._refresh_history()
+        self.after(250, self._tick)
 
-    def _queue_path(self):
-        return os.path.join(self.app.app_data_dir, "ads_batch.json")
+    def _tick(self):
+        if not self.winfo_exists():
+            return
+        while not self.events.empty():
+            event = self.events.get_nowait()
+            if event[0] == "status":
+                _, key, label, message, count, total = event
+                self.status_var.set(message)
+                self.progress.configure(maximum=max(1, total), value=count)
+                self._next_refresh = 0
+            elif event[0] == "done":
+                self.batch_running = False
+                self.status_var.set(event[1])
+                self._next_refresh = 0
+        if time.monotonic() >= self._next_refresh:
+            self._refresh_history()
+            self._next_refresh = time.monotonic() + 5
+        self.after(250, self._tick)
 
-    def _results_path(self):
-        return os.path.join(self.app.app_data_dir, "ads_results.json")
-
-    def _load_results(self):
-        try:
-            with open(self._results_path(), encoding="utf-8") as f:
-                self.results = json.load(f)
-        except (OSError, ValueError):
-            self.results = []
-        self._refresh_tree()
-
-    def _save_results(self):
-        tmp = self._results_path() + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(self.results, f, ensure_ascii=False, indent=2)
-        os.replace(tmp, self._results_path())
-
-    def _refresh_tree(self):
+    def _refresh_history(self):
         self.tree.delete(*self.tree.get_children())
-        for c in self.results:
-            headlines = c.get("headlines", [])
-            preview = " | ".join(headlines[:3])
-            if len(headlines) > 3:
-                preview += f" (+{len(headlines)-3})"
-            self.tree.insert("", "end", values=(
-                c.get("topic", ""), preview, "✓"))
+        try:
+            history = self.engine.history_list()
+        except Exception:
+            history = []
+        for h in history[:50]:
+            urls = ", ".join(h.get("urls", []))
+            topics = ", ".join(h.get("topics", []))
+            status = ("Ошибки" if h.get("errors")
+                      else ("Проверено" if h.get("manual_approved")
+                            else "Готово"))
+            self.tree.insert("", "end", iid=h["id"],
+                             values=(urls, topics, status))
 
     def _generate(self):
-        topic = self.var_topic.get().strip()
-        if not topic:
-            self.status_var.set("Введите тему кампании.")
-            return
-        api_key = self.app.cfg.get("gemini_api_key", "")
-        mode = "browser" if "CDP" in self.var_mode.get() else "api"
-        if mode == "api" and not api_key:
-            self.status_var.set("Нужен Gemini API key в настройках.")
-            return
-        if self.working:
+        if self.batch_running:
             self.status_var.set("Генерация уже идёт.")
             return
+        url = self.var_url.get().strip()
+        if not url:
+            self.status_var.set("Введите URL сайта.")
+            return
+        if not url.startswith(("http://", "https://")):
+            url = "https://" + url
 
-        self.working = True
-        self.stop.clear()
-        count = self.var_count.get()
-        country = self.var_country.get().strip()
-        language = self.var_lang.get().strip() or "English"
+        from woonsh_tools.ads.settings import Settings
+        dialog = Settings(
+            self, self.settings, 1, self.engine, self.key_path)
+        self.wait_window(dialog)
+        if not dialog.result:
+            return
+        settings, api_key = dialog.result
+        self.settings = settings
+        try:
+            self.settings_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.settings_path.with_suffix(".tmp")
+            tmp.write_text(
+                json.dumps(settings, ensure_ascii=False), encoding="utf-8")
+            tmp.replace(self.settings_path)
+        except OSError:
+            pass
 
-        from woonsh_tools.ads.generator import BatchQueue
-        queue = BatchQueue(self._queue_path())
-        queue.add(topic, country, language, count)
-        self.status_var.set(f"В очереди: {queue.pending_count()}")
+        self.cancel_batch.clear()
+        self.batch_running = True
+        job_id = os.urandom(8).hex()
+        prog = self.engine.Progress()
+        self.engine.JOBS[job_id] = prog
 
         def worker():
             try:
-                from woonsh_tools.core.gemini import GeminiClient
-                client = GeminiClient(keys=[api_key])
-                tab = None
-                if mode == "browser":
-                    from woonsh_tools.core.cdp import (
-                        chrome_path, launch_chrome, open_gemini_tab, cdp_alive, Tab)
-                    exe = chrome_path(self.app.cfg.get("chrome_path", ""))
-                    if not exe:
-                        self.app.emit("status", "Chrome не найден.")
-                        return
-                    if not cdp_alive():
-                        launch_chrome(exe)
-                    target = open_gemini_tab()
-                    tab = Tab(target["webSocketDebuggerUrl"])
-
-                def progress(done, total, msg):
-                    self.app.emit("status", f"Генерация: {msg}")
-
-                new = queue.process(
-                    client, api_key=api_key, mode=mode,
-                    tab=tab, on_progress=progress, stop=self.stop)
-                self.results.extend(new)
-                self._save_results()
-
-                def update():
-                    self._refresh_tree()
-                    self.status_var.set(
-                        f"Готово: {len(new)} новых кампаний.")
-                self.after(0, update)
-
-                if tab:
-                    tab.close()
+                payload = {
+                    "api_key": api_key,
+                    "urls": [url],
+                    "settings": dict(settings),
+                }
+                prog.result = self.engine.generate(payload, prog)
+                ready = any(
+                    site.get("csv") and not site.get("error")
+                    for site in prog.result.get("sites", []))
+                if not ready:
+                    details = "; ".join(
+                        safe_error(st.get("error", ""), api_key)
+                        for st in prog.result.get("sites", [])
+                        if st.get("error"))
+                    raise ValueError(details or "Модель не создала кампанию.")
+                self.engine.save_history(job_id, prog, [url])
+                label = ("Нужно исправить" if prog.result.get("errors")
+                         else "Готово")
+                self.events.put((
+                    "status", url, label,
+                    f"{url}: {label}", 1, 1))
             except Exception as exc:
-                self.app.emit("status", f"Ошибка: {exc}")
+                prog.error = safe_error(str(exc), api_key)
+                if prog.state:
+                    for site in prog.state.get("sites", []):
+                        if site.get("error"):
+                            site["error"] = safe_error(
+                                site["error"], api_key)
+                    self.engine.save_history(job_id, prog, [url])
+                self.events.put((
+                    "status", url, "Ошибка",
+                    f"Ошибка: {prog.error[:160]}", 1, 1))
             finally:
-                self.working = False
+                if prog.state:
+                    prog.state.pop("api_key", None)
+                prog.finished = True
+            self.events.put(("done", "Генерация завершена."))
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def _stop(self):
-        self.stop.set()
-        self.status_var.set("Остановка…")
+    def _cancel(self):
+        self.cancel_batch.set()
+        self.status_var.set("Остановка после текущего запроса…")
+
+    def _resume(self):
+        pending = [e for e in self.saved_queue if e.get("state") != "done"]
+        if not pending:
+            self.status_var.set("Нет незавершённых заданий.")
+            return
+        self.status_var.set(f"Найдено {len(pending)} незавершённых.")
 
     def _export(self):
-        if not self.results:
-            self.status_var.set("Нет кампаний для экспорта.")
+        selection = self.tree.selection()
+        if not selection:
+            history = self.engine.history_list()
+            ready = [h for h in history if h.get("rows", 0) > 0]
+        else:
+            ready = []
+            for hid in selection:
+                try:
+                    data = self.engine.history_load(hid)
+                    if data["result"].get("rows"):
+                        ready.append({"id": hid})
+                except Exception:
+                    pass
+        if not ready:
+            self.status_var.set("Нет готовых CSV для экспорта.")
             return
-        path = filedialog.asksaveasfilename(
-            parent=self, defaultextension=".csv",
-            filetypes=[("CSV", "*.csv")])
-        if not path:
-            return
-        from woonsh_tools.ads.generator import export_csv
-        export_csv(self.results, path)
-        self.status_var.set(f"Экспортировано: {path}")
 
-    def _clear_queue(self):
-        from woonsh_tools.ads.generator import BatchQueue
-        queue = BatchQueue(self._queue_path())
-        queue.clear_done()
-        self.status_var.set("Очередь очищена.")
+        if len(ready) == 1:
+            result = self.engine.history_load(ready[0]["id"])["result"]
+            path = filedialog.asksaveasfilename(
+                parent=self, defaultextension=".csv",
+                initialfile="ads.csv",
+                filetypes=[("CSV", "*.csv")])
+            if path:
+                Path(path).write_text(
+                    result["csv"], encoding="utf-8-sig", newline="")
+                self.status_var.set("CSV сохранён.")
+        else:
+            path = filedialog.asksaveasfilename(
+                parent=self, defaultextension=".zip",
+                initialfile="ads.zip",
+                filetypes=[("ZIP", "*.zip")])
+            if path:
+                with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
+                    used = set()
+                    for h in ready:
+                        result = self.engine.history_load(h["id"])["result"]
+                        name = "ads"
+                        base, n = name, 2
+                        while name in used:
+                            name, n = f"{base}_{n}", n + 1
+                        used.add(name)
+                        zf.writestr(
+                            name + ".csv",
+                            ("﻿" + result["csv"]).encode("utf-8"))
+                self.status_var.set("ZIP сохранён.")
 
 
 class ReviewPanel(ttk.Frame):
@@ -223,163 +302,67 @@ class ReviewPanel(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent, padding=12)
         self.app = app
-        self.campaigns = []
-        self.approved = set()
-        self._load_approved()
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
         buttons = ttk.Frame(self)
         buttons.grid(row=0, column=0, sticky="w", pady=(0, 8))
-        ttk.Button(buttons, text="Загрузить CSV",
-                   command=self._load_csv).pack(side="left")
-        ttk.Button(buttons, text="Из генератора",
-                   command=self._from_generator).pack(side="left", padx=8)
-        ttk.Button(buttons, text="Проверить все",
-                   command=self._validate_all).pack(side="left")
-        ttk.Button(buttons, text="Одобрить выбранное",
-                   command=self._approve).pack(side="left", padx=8)
-        ttk.Button(buttons, text="Экспорт одобренных",
-                   command=self._export_approved).pack(side="left")
+        ttk.Button(buttons, text="Загрузить результат",
+                   command=self._load).pack(side="left")
+        ttk.Button(buttons, text="Проверить",
+                   command=self._validate).pack(side="left", padx=8)
 
         tree_frame = ttk.Frame(self)
         tree_frame.grid(row=1, column=0, sticky="nsew")
         tree_frame.columnconfigure(0, weight=1)
         tree_frame.rowconfigure(0, weight=1)
-        self.tree = ttk.Treeview(
-            tree_frame,
-            columns=("topic", "headlines", "errors", "status"),
-            show="headings", selectmode="extended")
-        self.tree.heading("topic", text="Тема")
-        self.tree.heading("headlines", text="Заголовки")
-        self.tree.heading("errors", text="Ошибки")
-        self.tree.heading("status", text="Статус")
-        self.tree.column("topic", width=150)
-        self.tree.column("headlines", width=350)
-        self.tree.column("errors", width=200)
-        self.tree.column("status", width=100)
+        self.text = tk.Text(tree_frame, wrap="word")
         vsb = ttk.Scrollbar(tree_frame, orient="vertical",
-                            command=self.tree.yview)
-        self.tree.configure(yscrollcommand=vsb.set)
-        self.tree.grid(row=0, column=0, sticky="nsew")
+                            command=self.text.yview)
+        self.text.configure(yscrollcommand=vsb.set)
+        self.text.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
 
-        self.status_var = tk.StringVar(value="Загрузите кампании для проверки.")
+        self.status_var = tk.StringVar(
+            value="Загрузите результат генерации для проверки.")
         ttk.Label(self, textvariable=self.status_var,
                   wraplength=700).grid(
             row=2, column=0, sticky="w", pady=8)
+        self._result = None
 
-    def _approved_path(self):
-        return os.path.join(self.app.app_data_dir, "ads_approved.json")
-
-    def _load_approved(self):
-        try:
-            with open(self._approved_path(), encoding="utf-8") as f:
-                self.approved = set(json.load(f))
-        except (OSError, ValueError):
-            self.approved = set()
-
-    def _save_approved(self):
-        tmp = self._approved_path() + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(list(self.approved), f)
-        os.replace(tmp, self._approved_path())
-
-    def _load_csv(self):
-        path = filedialog.askopenfilename(
-            parent=self,
-            filetypes=[("CSV", "*.csv")])
-        if not path:
+    def _load(self):
+        from woonsh_tools.ads import generator as engine
+        history = engine.history_list()
+        if not history:
+            self.status_var.set("Нет истории генерации.")
             return
-        import csv
-        with open(path, encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
-            self.campaigns = []
-            for row in reader:
-                campaign = {
-                    "topic": row.get("Campaign", ""),
-                    "headlines": [row.get(f"Headline {i}", "")
-                                  for i in range(1, 16) if row.get(f"Headline {i}")],
-                    "descriptions": [row.get(f"Description {i}", "")
-                                     for i in range(1, 5) if row.get(f"Description {i}")],
-                    "path1": row.get("Path 1", ""),
-                    "path2": row.get("Path 2", ""),
-                    "keywords": [k.strip() for k in
-                                 row.get("Keywords", "").split(";") if k.strip()],
-                }
-                self.campaigns.append(campaign)
-        self._refresh_tree()
-        self.status_var.set(f"Загружено {len(self.campaigns)} кампаний.")
+        latest = history[0]
+        data = engine.history_load(latest["id"])
+        self._result = data["result"]
+        self.text.configure(state="normal")
+        self.text.delete("1.0", "end")
+        for site in self._result.get("sites", []):
+            self.text.insert("end",
+                             f"URL: {site.get('url', '')}\n"
+                             f"Тематика: {site.get('topic', '')}\n"
+                             f"Статистика: {site.get('stats', {})}\n\n")
+        if self._result.get("errors"):
+            self.text.insert("end", "ОШИБКИ:\n")
+            for e in self._result["errors"]:
+                self.text.insert("end", f"  • {e}\n")
+        if self._result.get("warnings"):
+            self.text.insert("end", "\nПРЕДУПРЕЖДЕНИЯ:\n")
+            for w in self._result["warnings"]:
+                self.text.insert("end", f"  • {w}\n")
+        self.text.configure(state="disabled")
+        self.status_var.set(f"Загружен результат: {latest['id']}")
 
-    def _from_generator(self):
-        results_path = os.path.join(self.app.app_data_dir, "ads_results.json")
-        try:
-            with open(results_path, encoding="utf-8") as f:
-                self.campaigns = json.load(f)
-        except (OSError, ValueError):
-            self.status_var.set("Нет сгенерированных кампаний.")
+    def _validate(self):
+        if not self._result:
+            self.status_var.set("Сначала загрузите результат.")
             return
-        self._refresh_tree()
-        self.status_var.set(f"Загружено {len(self.campaigns)} кампаний.")
-
-    def _refresh_tree(self):
-        from woonsh_tools.ads.validation import validate_campaign, approval_hash
-        self.tree.delete(*self.tree.get_children())
-        for c in self.campaigns:
-            headlines = " | ".join(c.get("headlines", [])[:3])
-            errors = validate_campaign(c)
-            ahash = approval_hash(c)
-            if ahash in self.approved:
-                status = "✓ Одобрено"
-            elif errors:
-                status = f"✗ {len(errors)} ош."
-            else:
-                status = "○ На проверке"
-            error_text = "; ".join(errors[:3])
-            self.tree.insert("", "end", values=(
-                c.get("topic", ""), headlines, error_text, status))
-
-    def _validate_all(self):
-        self._refresh_tree()
-        from woonsh_tools.ads.validation import validate_campaign
-        total_errors = sum(
-            len(validate_campaign(c)) for c in self.campaigns)
+        errors = self._result.get("errors", [])
+        warnings = self._result.get("warnings", [])
         self.status_var.set(
-            f"Проверено: {len(self.campaigns)} кампаний, "
-            f"{total_errors} ошибок.")
-
-    def _approve(self):
-        from woonsh_tools.ads.validation import validate_campaign, approval_hash
-        selection = self.tree.selection()
-        if not selection:
-            self.status_var.set("Выберите кампании.")
-            return
-        approved = 0
-        for item in selection:
-            index = self.tree.index(item)
-            if index < len(self.campaigns):
-                c = self.campaigns[index]
-                errors = validate_campaign(c)
-                if not errors:
-                    self.approved.add(approval_hash(c))
-                    approved += 1
-        self._save_approved()
-        self._refresh_tree()
-        self.status_var.set(f"Одобрено: {approved}")
-
-    def _export_approved(self):
-        from woonsh_tools.ads.validation import approval_hash
-        from woonsh_tools.ads.generator import export_csv
-        approved = [c for c in self.campaigns
-                    if approval_hash(c) in self.approved]
-        if not approved:
-            self.status_var.set("Нет одобренных кампаний.")
-            return
-        path = filedialog.asksaveasfilename(
-            parent=self, defaultextension=".csv",
-            filetypes=[("CSV", "*.csv")])
-        if not path:
-            return
-        export_csv(approved, path)
-        self.status_var.set(f"Экспортировано {len(approved)} кампаний.")
+            f"Ошибок: {len(errors)}, предупреждений: {len(warnings)}")
