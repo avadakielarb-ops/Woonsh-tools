@@ -1,0 +1,25 @@
+Выписки фирм, отданных 23-08.
+Собраны задним числом: выдача делалась до появления папок,
+и файлы остались в рабочей папке «Выписки».
+
+CZ	ICE invest spol. s r.o.	ICE invest spol. s r.o..pdf
+CZ	ONYX wood spol. s r.o.	ONYX wood spol. s r.o..pdf
+CZ	PERFECT ICE s.r.o.	PERFECT ICE s.r.o..pdf
+EE	Baltic Energy Partners OU	Baltic Energy Partners OÜ.pdf
+EE	Granite Software OU	Granite Software OÜ.pdf
+EE	Lock Force OU	Lock Force OÜ.pdf
+EE	RooSe & Son OU	RooSe & Son OÜ.pdf
+FR	BLUE ICE EUROPE	BLUE ICE EUROPE.pdf
+FR	CRYSTAL	CRYSTAL.pdf
+FR	FRONERI VAYRES SAS	FRONERI VAYRES SAS.pdf
+FR	HOI PRODUCTION FRANCE SAS	HOI PRODUCTION FRANCE SAS (STAGE TOURING FRANCE).pdf
+FR	ICE FRESH SEAFOOD	ICE FRESH SEAFOOD.pdf
+FR	ICE TROPEZ	ICE TROPEZ (ICE TROPEZ).pdf
+FR	INDUSTRIELLE DE CONTROLE ET D'EQUIPEMENT	INDUSTRIELLE DE CONTROLE ET D'EQUIPEMENT (ICE).pdf
+FR	INGENIERIE CONSEIL ET EQUIPEMENT GROUPE	INGENIERIE CONSEIL ET EQUIPEMENT GROUPE (ICE GROUPE).pdf
+NL	IceCool International B.V.	IceCool_International_B.V..pdf
+NL	Movares Nederland B.V.	Movares_Nederland_B.V..pdf
+NL	Otelli B.V.	Otelli_B.V..pdf
+NL	Recom Ice Systems B.V.	Recom_Ice_Systems_B.V..pdf
+PL	BLUE ICE SP Z O O	BLUE ICE SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ.pdf
+PL	ICE NET SP Z O O	ICE-NET SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ.pdf

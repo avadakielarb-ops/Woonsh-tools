@@ -1,0 +1,10 @@
+Выписки фирм, отданных 07-09.
+Собраны задним числом: выдача делалась до появления папок,
+и файлы остались в рабочей папке «Выписки».
+
+UK	Body Bronze Sunbed Hire	JLF SUNBEDS LTD.pdf
+UK	Body Bronze Sunbeds	COCO HIRE GROUP LTD.pdf
+UK	Bronze Tanning & Beauty	BRONZED TANNING & BEAUTY LTD.pdf
+UK	Bronze Tanning Salon	BRONZE TANNING 01 LTD.pdf
+UK	HYDRIADES LIMITED	ABB AQUA LIMITED.pdf
+UK	MANGANESE BRONZE COMPONENTS LIMITED	MANGANESE MOTORS LIMITED.pdf

@@ -1,0 +1,21 @@
+Выписки фирм, отданных 21-07.
+Собраны задним числом: выдача делалась до появления папок,
+и файлы остались в рабочей папке «Выписки».
+
+AU	AQUA COOLER PTY LTD	AQUA COOLER PTY LTD.pdf
+AU	CRICKET AUSTRALIA	CRICKET AUSTRALIA.pdf
+CZ	AQUA - GAS, s.r.o.	AQUA - GAS, s.r.o..pdf
+CZ	AQUA - STYL spol. s r.o.	AQUA - STYL spol. s r.o..pdf
+CZ	AQUA 4U profistore s.r.o.	AQUA 4U profistore s.r.o..pdf
+CZ	AQUA PROCON s.r.o.	AQUA PROCON s.r.o..pdf
+CZ	AQUA Park Špindlerův Mlýn s.r.o.	AQUA Park Špindlerův Mlýn s.r.o..pdf
+CZ	AQUA SERVIS, a.s.	AQUA servis spol. s r.o..pdf
+CZ	Aqua Maintenance a.s.	Aqua Maintenance a.s..pdf
+CZ	INVITAL aqua s.r.o.	INVITAL aqua s.r.o..pdf
+CZ	PETRA-AQUA s.r.o.	PETRA-AQUA s.r.o..pdf
+CZ	PRO-AQUA CZ, s.r.o.	PRO-AQUA CZ, s.r.o..pdf
+HR	AQUA-INVEST d.o.o.	AQUA-INVEST d.o.o. za građevinarstvo, trgovinu i usluge.pdf
+UK	AQUA COOLING LIMITED	AQUA COOLING LIMITED.pdf
+UK	AVK UK LIMITED	AVK UK LIMITED.pdf
+UK	NCH (UK) LIMITED	NCH (UK) LIMITED.pdf
+UK	ROXANE UK LIMITED	EQUALMOST ENTERPRISES LIMITED.pdf

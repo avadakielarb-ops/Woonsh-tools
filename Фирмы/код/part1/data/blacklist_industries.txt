@@ -1,0 +1,67 @@
+# ЧЁРНЫЙ СПИСОК ОТРАСЛЕЙ (политика Google Ads + отрасли, где на регистрации
+# потребуют доп. сертификаты сверх выписки).
+# Одна строка = одно ключевое слово. Совпадение по подстроке в поле Industry с DnB.
+# Регистр не важен. Строки с # — комментарии.
+# ПОДГОНИ ПОД СЕБЯ: это стартовый список, а не истина.
+
+# азартные игры
+gambling
+casino
+betting
+lottery
+# финансы и кредиты
+loan
+lending
+payday
+mortgage
+credit
+debt
+forex
+crypto
+cryptocurrency
+blockchain
+investment advice
+# медицина и фарма
+pharmac
+drug
+medicine
+clinic
+hospital
+dental
+medical
+healthcare
+supplement
+# табак, алкоголь, вейпы
+tobacco
+cigarette
+vape
+e-cigarette
+cannabis
+cbd
+liquor
+distiller
+brewer
+# оружие
+firearm
+weapon
+ammunition
+explosive
+# взрослое
+adult
+escort
+dating
+# прочее с обязательной сертификацией
+insurance
+legal services
+law firm
+attorney
+security guard
+locksmith
+addiction
+rehabilitation
+political
+
+# --- добавлено под формулировки DnB (19-07) ---
+securities and commodity
+commodity contracts
+intermediation and brokerage
