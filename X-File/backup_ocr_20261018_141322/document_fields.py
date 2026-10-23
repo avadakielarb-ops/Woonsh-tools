@@ -1,0 +1,93 @@
+"""Conservative local document field extraction; suggestions require review."""
+import datetime as dt
+import re
+
+FIELDS = ('ФИО', 'Действителен до', 'Дата рождения', 'Страна выдачи', 'Вид документа')
+
+
+def valid_date(value):
+    value = value.strip()
+    for fmt in ('%d.%m.%Y', '%d/%m/%Y', '%d-%m-%Y', '%Y-%m-%d', '%d %m %Y', '%d %b %Y', '%d %B %Y'):
+        try:
+            return dt.datetime.strptime(value, fmt).date().strftime('%d.%m.%Y')
+        except ValueError:
+            pass
+    return ''
+
+
+def mrz_check(text, digit):
+    if not digit.isdigit():
+        return False
+    def number(char):
+        return int(char) if char.isdigit() else (ord(char)-55 if 'A' <= char <= 'Z' else 0)
+    return sum(number(c)*[7,3,1][i%3] for i,c in enumerate(text)) % 10 == int(digit)
+
+
+def mrz_date(value, birth=False):
+    today = dt.date.today()
+    candidates = []
+    for century in (1900,2000,2100):
+        try:
+            date=dt.date(century+int(value[:2]),int(value[2:4]),int(value[4:]))
+        except ValueError:
+            continue
+        if birth and 0 <= (today-date).days <= 110*366:
+            candidates.append(date)
+        elif not birth and today.year-15 <= date.year <= today.year+30:
+            candidates.append(date)
+    # Do not silently choose a birth century if two are plausible.
+    if len(candidates) != 1:
+        return ''
+    return candidates[0].strftime('%d.%m.%Y')
+
+
+def extract_fields(text):
+    result = {field:'' for field in FIELDS}
+    lines=[line.strip() for line in text.splitlines() if line.strip()]
+    labels={
+        'ФИО':['full name','name of holder','фио','ф.и.о.'],
+        'Дата рождения':['date of birth','birth date','дата рождения','geburtsdatum','syntymäaika'],
+        'Действителен до':['date of expiry','date of expiration','expiry date','valid until','действителен до','срок действия','gültig bis','voimassa asti'],
+        'Страна выдачи':['issuing country','country of issue','страна выдачи','страна','ausstellungsstaat'],
+        'Вид документа':['document type','type of document','вид документа','тип документа']}
+    extras={}
+    for i,line in enumerate(lines):
+        for field, aliases in labels.items():
+            for label in aliases:
+                match=re.match(r'^'+re.escape(label)+r'\s*(?::|=|\s[-–]\s)\s*(.+)$',line,re.I)
+                value=match.group(1).strip() if match else (lines[i+1] if line.casefold()==label and i+1<len(lines) else '')
+                if value and not result[field]:
+                    if field in ('Дата рождения','Действителен до'):
+                        date=re.search(r'\b(?:\d{4}-\d{2}-\d{2}|\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{1,2}\s+\w+\s+\d{4})\b',value)
+                        value=valid_date(date.group()) if date else ''
+                    if value:
+                        result[field]=value
+        for key, names in {'surname':['surname','фамилия','nachname'], 'given':['given names','given name','имя','vornamen']}.items():
+            for label in names:
+                match=re.match(r'^'+re.escape(label)+r'\s*[:=]\s*(.+)$',line,re.I)
+                if match:
+                    extras[key]=match.group(1).strip()
+    if not result['ФИО'] and extras.get('surname') and extras.get('given'):
+        result['ФИО']=extras['surname']+' '+extras['given']
+    for i,line in enumerate(lines[:-1]):
+        first=re.sub(r'\s','',line.upper())
+        second=re.sub(r'\s','',lines[i+1].upper())
+        if len(first)==44 and first.startswith('P<') and len(second)==44 and re.fullmatch(r'[A-Z0-9<]+',first+second):
+            name=first[5:].split('<<',1)
+            if len(name)==2:
+                result['ФИО']=result['ФИО'] or ' '.join((name[0]+' '+name[1]).replace('<',' ').split())
+            result['Вид документа']=result['Вид документа'] or 'Паспорт'
+            result['Страна выдачи']=result['Страна выдачи'] or first[2:5]
+            if mrz_check(second[13:19],second[19]):
+                result['Дата рождения']=result['Дата рождения'] or mrz_date(second[13:19],True)
+            if mrz_check(second[21:27],second[27]):
+                result['Действителен до']=result['Действителен до'] or mrz_date(second[21:27])
+    if not result['Вид документа']:
+        lower=text.casefold()
+        for needles, kind in [(('passport','паспорт','reisepass','passi'),'Паспорт'),
+                              (('identity card','id card','personalausweis','henkilökortti'),'ID-карта'),
+                              (("driving licence","driver license","водительское удостоверение"),'Водительское удостоверение')]:
+            if any(word in lower for word in needles):
+                result['Вид документа']=kind
+                break
+    return result

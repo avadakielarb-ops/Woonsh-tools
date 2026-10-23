@@ -1,0 +1,99 @@
+234 INFO: PyInstaller: 6.22.3, contrib hooks: 2026.8
+234 INFO: Python: 3.13.15
+259 INFO: Platform: Windows-11-10.0.26300-SP0
+259 INFO: Python environment: C:\Users\lesha\AppData\Local\Programs\Python\Python313
+259 INFO: wrote C:\Users\lesha\OneDrive\Desktop\X-File\build_release_work\MultiToolFarmer.spec
+261 INFO: Removing temporary files and cleaning cache in C:\Users\lesha\AppData\Local\pyinstaller
+370 INFO: Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+370 INFO: cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+3956 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\lesha\\OneDrive\\Desktop\\X-File',
+ 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\python313.zip',
+ 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\DLLs',
+ 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib',
+ 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313',
+ 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages',
+ 'C:\\Users\\lesha\\OneDrive\\Desktop\\X-File']
+4368 INFO: Appending 'binaries' from .spec
+4368 INFO: Appending 'datas' from .spec
+4454 INFO: checking Analysis
+4455 INFO: Building Analysis because Analysis-00.toc is non existent
+4455 INFO: Looking for Python shared library...
+4455 INFO: Using Python shared library: C:\Users\lesha\AppData\Local\Programs\Python\Python313\python313.dll
+4455 INFO: Running Analysis Analysis-00.toc
+4455 INFO: Target bytecode optimization level: 0
+4455 INFO: Initializing module dependency graph...
+4457 INFO: Initializing module graph hook caches...
+4484 INFO: Analyzing modules for base_library.zip ...
+5966 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+6422 INFO: Processing standard module hook 'hook-math.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+6636 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+7694 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+9759 INFO: Caching module dependency graph...
+9781 INFO: Analyzing C:\Users\lesha\OneDrive\Desktop\X-File\x-file.pyw
+9896 INFO: Processing standard module hook 'hook-platform.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+9939 INFO: Processing standard module hook 'hook-sysconfig.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+9950 INFO: Processing standard module hook 'hook-_ctypes.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+10056 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+10258 INFO: Processing standard module hook 'hook-xml.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+10623 INFO: Processing standard module hook 'hook-difflib.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+10626 INFO: Processing pre-find-module-path hook 'hook-tkinter.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+10628 INFO: TclTkInfo: initializing cached Tcl/Tk info...
+10955 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+11078 INFO: Processing standard module hook 'hook-webbrowser.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+11200 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+11202 INFO: SetuptoolsInfo: initializing cached setuptools info...
+13103 INFO: Processing standard module hook 'hook-xml.dom.domreg.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+13559 INFO: Processing standard module hook 'hook-PIL.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+13644 INFO: Processing standard module hook 'hook-PIL.Image.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+14137 INFO: Processing standard module hook 'hook-xml.etree.cElementTree.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+14323 INFO: Processing standard module hook 'hook-PIL.ImageFilter.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+17410 INFO: Processing standard module hook 'hook-openpyxl.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+19666 INFO: Processing standard module hook 'hook-playwright.sync_api.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\playwright\\_impl\\__pyinstaller'
+26728 INFO: Processing standard module hook 'hook-sqlite3.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+27852 INFO: Analyzing hidden import 'playwright.__main__'
+27860 INFO: Analyzing hidden import 'playwright._impl.__pyinstaller'
+27867 INFO: Analyzing hidden import 'playwright._impl._async_base'
+27875 INFO: Analyzing hidden import 'playwright._impl._path_utils'
+27878 INFO: Analyzing hidden import 'playwright.async_api'
+27890 INFO: Processing standard module hook 'hook-playwright.async_api.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\playwright\\_impl\\__pyinstaller'
+28418 INFO: Analyzing hidden import 'telethon.sync'
+28428 INFO: Analyzing hidden import 'pymupdf.__main__'
+28462 INFO: Processing module hooks (post-graph stage)...
+28879 INFO: Processing standard module hook 'hook-PIL.SpiderImagePlugin.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+28979 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks'
+28992 INFO: Performing binary vs. data reclassification (1411 entries)
+35624 INFO: Looking for ctypes DLLs
+35659 INFO: Analyzing run-time hooks ...
+35662 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+35674 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+35683 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+35692 INFO: Including run-time hook 'pyi_rth__tkinter.py' from 'C:\\Users\\lesha\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+35728 INFO: Creating base_library.zip...
+35742 INFO: Looking for dynamic libraries
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+37077 INFO: Extra DLL search directories (AddDllDirectory): []
+37077 INFO: Extra DLL search directories (PATH): []
+37746 INFO: Warnings written to C:\Users\lesha\OneDrive\Desktop\X-File\build_release_work\pyinstaller\MultiToolFarmer\warn-MultiToolFarmer.txt
+37787 INFO: Graph cross-reference written to C:\Users\lesha\OneDrive\Desktop\X-File\build_release_work\pyinstaller\MultiToolFarmer\xref-MultiToolFarmer.html
+37857 INFO: checking PYZ
+37857 INFO: Building PYZ because PYZ-00.toc is non existent
+37857 INFO: Building PYZ (ZlibArchive) C:\Users\lesha\OneDrive\Desktop\X-File\build_release_work\pyinstaller\MultiToolFarmer\PYZ-00.pyz
+38717 INFO: Building PYZ (ZlibArchive) C:\Users\lesha\OneDrive\Desktop\X-File\build_release_work\pyinstaller\MultiToolFarmer\PYZ-00.pyz completed successfully.
+38750 INFO: checking PKG
+38751 INFO: Building PKG because PKG-00.toc is non existent
+38751 INFO: Building PKG (CArchive) MultiToolFarmer.pkg
+54609 INFO: Building PKG (CArchive) MultiToolFarmer.pkg completed successfully.
+54635 INFO: Bootloader C:\Users\lesha\AppData\Local\Programs\Python\Python313\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\runw.exe
+54635 INFO: checking EXE
+54635 INFO: Building EXE because EXE-00.toc is non existent
+54635 INFO: Building EXE from EXE-00.toc
+54635 INFO: Copying bootloader EXE to C:\Users\lesha\OneDrive\Desktop\X-File\release\2.9.8\MultiToolFarmer.exe
+54692 INFO: Copying icon to EXE
+54728 INFO: Copying 0 resources to EXE
+54728 INFO: Embedding manifest in EXE
+54758 INFO: Appending PKG archive to EXE
+54816 INFO: Fixing EXE headers
+55219 INFO: Building EXE from EXE-00.toc completed successfully.
+55239 INFO: Build complete! The results are available in: C:\Users\lesha\OneDrive\Desktop\X-File\release\2.9.8
+C:\Users\lesha\OneDrive\Desktop\X-File\release\2.9.8\MultiToolFarmer.exe

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Загрузчик выписок</title>
+<style>
+  :root{
+    --bg:#13111c; --card:#1b1826; --line:#2e2a3d; --ink:#e8e4f3;
+    --muted:#9b93b5; --accent:#8b5cf6; --ok:#34d399; --warn:#fbbf24;
+    --bad:#f87171;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.65 "Segoe UI",system-ui,sans-serif;
+       padding:40px 16px 80px}
+  main{max-width:900px;margin:0 auto}
+  h1{font-size:30px;margin:0 0 6px}
+  .sub{color:var(--muted);margin:0 0 36px}
+  h2{font-size:22px;margin:44px 0 12px;padding-top:20px;
+     border-top:1px solid var(--line)}
+  h3{font-size:17px;margin:26px 0 8px;color:#cfc7e8}
+  p,li{color:var(--ink)}
+  ol,ul{padding-left:22px}
+  li{margin:6px 0}
+  .card{background:var(--card);border:1px solid var(--line);
+        border-radius:12px;padding:16px 20px;margin:18px 0}
+  .warn{border-left:4px solid var(--warn)}
+  .bad{border-left:4px solid var(--bad)}
+  .ok{border-left:4px solid var(--ok)}
+  code{background:#241f33;padding:2px 6px;border-radius:5px;font-size:14px}
+  table{width:100%;border-collapse:collapse;margin:16px 0}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);
+        vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:14px}
+  .step{display:flex;gap:14px;margin:14px 0}
+  .num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent);
+       color:#fff;display:flex;align-items:center;justify-content:center;
+       font-weight:700;font-size:15px}
+  b{color:#fff}
+  .example{background:#1a2420;border-left:4px solid var(--ok)}
+</style>
+</head>
+<body>
+<main>
+
+<h1>Загрузчик выписок</h1>
+<p class="sub">Загружает PDF-выписки на Google Drive, сопоставляет с компаниями
+и собирает Excel со ссылками. Всё через rclone — бесплатно и без API-ключей.</p>
+
+<h2>Первый запуск</h2>
+
+<div class="step"><div class="num">1</div><div>
+  Дважды кликни <code>ІНСТРУКЦІЯ.bat</code> — он проверит Python,
+  установит библиотеки <code>openpyxl</code> и <code>pypdf</code>,
+  покажет есть ли <code>rclone</code>.
+</div></div>
+<div class="step"><div class="num">2</div><div>
+  Дважды кликни <code>x-file.pyw</code> — откроется окно программы.
+</div></div>
+<div class="step"><div class="num">3</div><div>
+  Если <code>rclone</code> не найден — нажми в программе <b>«Скачать rclone»</b>.
+  Файл <code>rclone.exe</code> ляжет рядом с программой.
+</div></div>
+<div class="step"><div class="num">4</div><div>
+  Если Drive ещё не подключён — используй <b>Пакер архивов</b>: там кнопка
+  «Подключить Google Drive» → браузер → разрешить доступ. Remote <code>gdrive</code>
+  общий для всех программ, подключается <b>один раз</b>.
+</div></div>
+
+<h2>Как пользоваться</h2>
+
+<h3>Шаг 1. Профили → Excel</h3>
+
+<p>Вставь текст с платёжными профилями в верхнее поле. Формат — как из базы:</p>
+
+<div class="card example">
+<pre style="margin:0;color:var(--ok);font-size:13px">"C J ROOFING SERVICES LIMITED
+1 Belvedere House Kingsway BISHOP AUCKLAND, England, DL14 7JN United Kingdom
+http://www.roofingcountydurham.co.uk/"
+"LIFE MAT SERVICES LTD.
+BOSWORTH ACADEMY LEICESTER LANE DESFORD LEICESTER, LE9 9JL United Kingdom
+http://www.bosworthacademy.org.uk/"</pre>
+</div>
+
+<p>Жми <b>«Распознать и создать Excel»</b>. Программа:</p>
+<ul>
+  <li>Вытащит названия компаний (строки с заглавными буквами)</li>
+  <li>Пропустит адреса и ссылки</li>
+  <li>Предложит сохранить <code>.xlsx</code> файл</li>
+  <li>Заполнит <b>колонку A</b> названиями. Колонка B пока пустая</li>
+</ul>
+
+<h3>Шаг 2. Папка с PDF → Сопоставление</h3>
+
+<p>Выбери папку с PDF-выписками кнопкой <b>«Обзор»</b>, затем жми
+<b>«Сопоставить файлы»</b>.</p>
+
+<p>Программа пройдёт каждый PDF:</p>
+
+<table>
+<tr><th>Ситуация</th><th>Что делает</th></tr>
+<tr><td>Имя файла похоже на компанию</td>
+    <td>Переименовывает точно под компанию → готов к заливке</td></tr>
+<tr><td>Имя стандартное, не совпадает</td>
+    <td><b>Открывает PDF</b>, читает текст первой страницы, ищет название компании внутри, переименовывает</td></tr>
+<tr><td>Ничего не совпало</td>
+    <td>Покажет в логе как <b>✗ не опознан</b> — переименуй руками</td></tr>
+</table>
+
+<div class="card ok">
+  <b>Совпадение нестрогое.</b> Без регистра, без суффиксов
+  LIMITED / LTD / PLC / SERVICES и т.д., по основным словам названия.
+  Если в имени файла есть хотя бы ключевые слова компании — совпадёт.
+</div>
+
+<h3>Шаг 3. Загрузка → Ссылки в Excel</h3>
+
+<p>Вставь ссылку на папку Google Drive в поле <b>«Ссылка на папку»</b>.
+Подходит полная ссылка или просто ID папки.</p>
+
+<p>Жми <b>«Загрузить и заполнить Excel»</b>. Программа:</p>
+
+<ol>
+  <li>Загрузит всю папку на Drive через <code>rclone</code></li>
+  <li>Получит ID каждого файла на диске</li>
+  <li>Соберёт ссылки вида <code>drive.google.com/file/d/.../view</code></li>
+  <li>Запишет ссылки в <b>колонку B</b> того же Excel</li>
+</ol>
+
+<p>Компании без ссылки (не нашёлся файл) покажет отдельным списком в логе.</p>
+
+<h2>Что где лежит</h2>
+
+<table>
+<tr><th>Файл</th><th>Назначение</th></tr>
+<tr><td><code>x-file.pyw</code></td><td>Программа</td></tr>
+<tr><td><code>ІНСТРУКЦІЯ.bat</code></td><td>Первый запуск: проверка/установка зависимостей + открытие этой страницы</td></tr>
+<tr><td><code>instrukciya.html</code></td><td>Эта инструкция</td></tr>
+<tr><td><code>x-file_config.json</code></td><td>Настройки (создаётся при первом запуске, запоминает папки и ссылки)</td></tr>
+<tr><td><code>rclone.exe</code></td><td>Скачивается кнопкой из программы, если ещё нет</td></tr>
+</table>
+
+<h2>Зависимости</h2>
+
+<table>
+<tr><th>Что</th><th>Зачем</th><th>Как ставится</th></tr>
+<tr><td><b>Python 3</b></td><td>Запуск программы</td><td><code>ІНСТРУКЦІЯ.bat</code> поставит сам</td></tr>
+<tr><td><b>openpyxl</b></td><td>Запись Excel</td><td><code>ІНСТРУКЦІЯ.bat</code> или <code>pip install openpyxl</code></td></tr>
+<tr><td><b>pypdf</b></td><td>Чтение PDF</td><td><code>ІНСТРУКЦІЯ.bat</code> или <code>pip install pypdf</code></td></tr>
+<tr><td><b>rclone</b></td><td>Загрузка на Drive</td><td>Кнопка в программе или <a href="https://rclone.org/downloads/" style="color:var(--accent)">rclone.org</a></td></tr>
+</table>
+
+<div class="card warn">
+  <b>rclone и Google Drive.</b> Remote <code>gdrive</code> общий с Пакером архивов.
+  Если уже подключал Drive в Пакере — здесь ничего настраивать не надо.
+  Если нет — один раз: в Пакере жми «Подключить Google Drive» → браузер → разрешить.
+</div>
+
+<h2>Чего не делать</h2>
+
+<ul>
+  <li>Не менять вручную колонку A в Excel до загрузки — сопоставление идёт по этим именам</li>
+  <li>Не заливать в одну папку Drive выписки от разных партий — программа читает всю папку</li>
+  <li>Не удалять <code>rclone.exe</code> — без него загрузка не работает</li>
+</ul>
+
+<h2>Если что-то сломалось</h2>
+
+<table>
+<tr><th>Проблема</th><th>Решение</th></tr>
+<tr><td>«rclone не найден»</td><td>Скачай кнопкой в программе или положи <code>rclone.exe</code> рядом</td></tr>
+<tr><td>«pypdf не найден»</td><td>В консоли: <code>pip install pypdf</code></td></tr>
+<tr><td>«openpyxl не найден»</td><td>В консоли: <code>pip install openpyxl</code></td></tr>
+<tr><td>PDF не опознался</td><td>Переименуй вручную под название компании, потом загрузи</td></tr>
+<tr><td>Ссылка не легла в Excel</td><td>Имя файла на Drive должно совпадать с названием в колонке A</td></tr>
+</table>
+
+</main>
+</body>
+</html>

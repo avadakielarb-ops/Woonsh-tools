@@ -1,0 +1,12 @@
+# WoonSh ToolS — зависимости.
+# Ставятся автоматически при первом запуске (launcher.py), но можно и вручную:
+#   pip install -r requirements.txt
+
+customtkinter>=5.2.0        # интерфейс (тёмная тема, сайдбар)
+openpyxl>=3.1.0             # локальный Excel-фолбэк (WoonSh_Backup.xlsx)
+google-generativeai>=0.7.0 # Gemini API (ID Phantom, Ad-Vocate, заголовки VidMiner)
+google-api-python-client>=2.0.0  # YouTube Data API (VidMiner), бесплатная квота
+gspread>=6.0.0             # запись в Google-таблицу (опционально, нужен сервис-аккаунт)
+google-auth>=2.0.0         # авторизация сервис-аккаунта для gspread
+Pillow>=10.0.0            # подготовка фото для Gemini Vision (ID Phantom)
+playwright>=1.40.0        # Drop-X: браузерная заливка выписок (ставится последним)

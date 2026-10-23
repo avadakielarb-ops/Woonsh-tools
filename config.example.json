@@ -1,0 +1,32 @@
+{
+  "_comment": "Скопируй этот файл в config.json и заполни. Пустые поля просто отключают функцию (например, нет sheet_id → всё пишется в Excel).",
+
+  "table": {
+    "sheet_id": "",
+    "sheet_name": "WoonSh",
+    "google_creds_path": "",
+    "excel_path": "WoonSh_Backup.xlsx"
+  },
+
+  "columns": {
+    "_comment": "Один лист, деление по колонкам. Каждый модуль пишет в свой блок, с первой пустой строки НЕЗАВИСИМО.",
+    "dropx":   { "headers": ["Название фирмы", "Ссылка на файл", "Статус", "Дата"],        "start_col": "A" },
+    "phantom": { "headers": ["Профиль", "Страна", "ФИО", "Адрес"],                         "start_col": "E" },
+    "vidminer":{ "headers": ["Тема", "Ссылка на видео", "Заголовок 90", "Заголовок 60"],   "start_col": "I" }
+  },
+
+  "gemini": {
+    "keys": ["", ""],
+    "models": ["gemini-2.5-flash", "gemini-flash-latest"]
+  },
+
+  "youtube": {
+    "api_key": ""
+  },
+
+  "folders": {
+    "docs_source": "",
+    "extracts_source": "",
+    "output": "Ready_To_Upload"
+  }
+}

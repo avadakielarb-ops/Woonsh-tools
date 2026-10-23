@@ -1,0 +1,46 @@
+# МИНУС-ЛИСТ БРЕНДОВ. Если название фирмы содержит одно из этих слов — отсев.
+# Смысл: не тащить в работу франшизы и представительства крупных брендов.
+# Дополняй по мере накопления опыта (лист «Лог» покажет, кого стоит добавить).
+nike
+adidas
+puma
+reebok
+mcdonald
+burger king
+kfc
+subway
+starbucks
+coca-cola
+pepsi
+nestle
+unilever
+samsung
+apple inc
+microsoft
+google
+amazon
+ikea
+h&m
+zara
+decathlon
+carrefour
+lidl
+aldi
+tesco
+shell
+bp
+total
+siemens
+bosch
+philips
+sony
+toyota
+volkswagen
+bmw
+mercedes
+audi
+ford
+hilton
+marriott
+booking.com
+uber

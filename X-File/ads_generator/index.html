@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Помощник ИИ Вжух — Реклама</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --text:#1d2330; --muted:#667085; --line:#e3e6ec; --accent:#1a73e8; --bad:#c5221f; --warn:#b06000; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14171d; --card:#1d222b; --text:#e8eaf0; --muted:#9aa3b2; --line:#2e3542; --accent:#6aa5ff; --bad:#ff8b85; --warn:#f2b45a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui, sans-serif; }
+  main { max-width:1280px; margin:0 auto; padding:16px 16px 48px; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+  h1 { font-size:20px; margin:0; }
+  .tabs { display:flex; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:3px; }
+  .tab { background:transparent; color:var(--muted); padding:6px 14px; border-radius:6px; font-weight:600; }
+  .tab.on { background:var(--accent); color:#fff; }
+  .layout { display:grid; grid-template-columns:minmax(340px, 430px) 1fr; gap:16px; align-items:start; }
+  @media (max-width: 960px) { .layout { grid-template-columns:1fr; } .left { position:static !important; max-height:none !important; } }
+  .left { position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto; padding-right:2px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:10px; }
+  details.card { padding:0; }
+  details.card > summary { list-style:none; cursor:pointer; padding:11px 14px; display:flex; justify-content:space-between; gap:10px; align-items:baseline; }
+  details.card > summary::-webkit-details-marker { display:none; }
+  details.card > summary b { font-size:14px; white-space:nowrap; }
+  details.card > summary b::before { content:'▸ '; color:var(--muted); }
+  details.card[open] > summary b::before { content:'▾ '; }
+  .sum { color:var(--muted); font-size:12px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .body { padding:2px 14px 14px; }
+  h2 { font-size:15px; margin:0 0 10px; }
+  label { display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  input, select, textarea { width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--text); font:inherit; }
+  textarea { min-height:70px; resize:vertical; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; }
+  .row { display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+  .row label { display:inline-flex; gap:6px; align-items:center; margin:0; color:var(--text); font-size:13px; }
+  .row input[type=radio], .row input[type=checkbox] { width:auto; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:9px 16px; font:inherit; font-weight:600; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:wait; }
+  button.sec { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  button.small { padding:3px 9px; font-size:12px; }
+  button.danger { background:transparent; color:var(--bad); border:1px solid var(--bad); }
+  #go { width:100%; padding:12px; font-size:15px; }
+  .err { color:var(--bad); margin-top:8px; white-space:pre-wrap; }
+  .warn { color:var(--warn); font-size:13px; }
+  .site { padding:8px 0; border-top:1px solid var(--line); }
+  .site:first-child { border-top:0; }
+  .camp { display:flex; gap:10px; align-items:center; justify-content:space-between; padding:4px 0 4px 12px; font-size:13px; }
+  .muted { color:var(--muted); }
+  .hint { color:var(--muted); font-size:12px; margin-top:6px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .chip { background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:2px 10px; font-size:13px; cursor:pointer; }
+  .chip:hover { border-color:var(--bad); color:var(--bad); }
+  .tablewrap { overflow:auto; max-height:460px; border:1px solid var(--line); border-radius:6px; }
+  table { border-collapse:collapse; font-size:12px; white-space:nowrap; }
+  th, td { padding:4px 8px; border-bottom:1px solid var(--line); text-align:left; }
+  th { position:sticky; top:0; background:var(--card); }
+  .bar { height:10px; background:var(--line); border-radius:5px; overflow:hidden; }
+  #pbar { height:100%; width:0; background:var(--accent); transition:width .4s; }
+  .empty { text-align:center; color:var(--muted); padding:48px 16px; }
+  .hist { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Помощник ИИ Вжух — Реклама <span class="muted" style="font-size:12px;font-weight:400">v{{VERSION}}</span></h1>
+    <div class="tabs">
+      <button class="tab on" data-view="create">Создать</button>
+      <button class="tab" data-view="history">История</button>
+    </div>
+  </header>
+
+  <!-- ===================== CREATE ===================== -->
+  <div id="v-create" class="layout">
+    <div class="left">
+      <div class="card">
+        <label for="urls">Сайты (по одной ссылке на строку)</label>
+        <textarea id="urls" placeholder="https://example.com" style="min-height:64px"></textarea>
+        <label for="about" style="margin-top:10px">О чём реклама (необязательно; приоритетнее текста сайта)</label>
+        <textarea id="about" style="min-height:48px" placeholder="например: доставка цветов по Риге, букеты от 20 €. Если сайт закрыт для чтения (ошибка 403), вставьте сюда текст с его страниц"></textarea>
+        <label for="apikey" style="margin-top:10px">Gemini API key (не нужен, если задан GEMINI_API_KEY)</label>
+        <input id="apikey" type="password" autocomplete="off" placeholder="AIza...">
+      </div>
+
+      <details class="card" open data-sum="s-struct">
+        <summary><b>Структура</b><span class="sum" id="s-struct"></span></summary>
+        <div class="body">
+          <div class="grid">
+            <div><label>Кампаний</label><input id="campaigns" type="number" min="1" max="10" value="2"></div>
+            <div><label>Групп в кампании</label><input id="ad_groups" type="number" min="1" max="10" value="3"></div>
+            <div><label>Ключей в группе</label><input id="keywords" type="number" min="1" max="50" value="10"></div>
+            <div><label>Объявлений в группе</label><input id="ads" type="number" min="1" max="3" value="1"></div>
+            <div><label>Заголовков (3–15)</label><input id="headlines" type="number" min="3" max="15" value="10"></div>
+            <div><label>Описаний (2–4)</label><input id="descriptions" type="number" min="2" max="4" value="4"></div>
+          </div>
+          <div class="row" style="margin:12px 0 0">
+            <span class="muted">Соответствие:</span>
+            <label><input type="checkbox" name="mt" value="broad"> Broad</label>
+            <label><input type="checkbox" name="mt" value="phrase" checked> Phrase</label>
+            <label><input type="checkbox" name="mt" value="exact"> Exact</label>
+          </div>
+        </div>
+      </details>
+
+      <details class="card" data-sum="s-budget">
+        <summary><b>Бюджет и ставка</b><span class="sum" id="s-budget"></span></summary>
+        <div class="body">
+          <div class="row">
+            <label><input type="radio" name="bm" value="fixed" checked> Фиксированный</label>
+            <label><input type="radio" name="bm" value="range"> Диапазон (случайно)</label>
+          </div>
+          <div class="grid">
+            <div id="bfixed"><label>Бюджет в день, $</label><input id="budget_fixed" type="number" step="0.01" min="0.01" value="10"></div>
+            <div id="bmin" hidden><label>От, $</label><input id="budget_min" type="number" step="0.01" min="0.01" value="5"></div>
+            <div id="bmax" hidden><label>До, $</label><input id="budget_max" type="number" step="0.01" min="0.01" value="15"></div>
+            <div><label>Max CPC, $</label><input id="max_cpc" disabled type="number" step="0.01" min="0.01" value="0.01"></div>
+            <div><label>Статус</label><select id="status"><option>Paused</option><option>Enabled</option></select></div>
+            <div><label>Язык (авто)</label><input id="language" placeholder="en, ru…"></div>
+          </div>
+          <div class="hint">Статус задаётся кампании; группы, ключи и объявления создаются включёнными.</div>
+        </div>
+      </details>
+
+      <details class="card" data-sum="s-loc">
+        <summary><b>Локации</b><span class="sum" id="s-loc"></span></summary>
+        <div class="body">
+          <label for="loc_in">Страна или город по-английски: выберите из списка или впишите и нажмите Enter</label>
+          <input id="loc_in" list="countries" placeholder="Latvia, Germany, Riga, Latvia…" autocomplete="off">
+          <datalist id="countries"></datalist>
+          <div id="locs" class="chips"></div>
+          <div class="hint">Клик по метке удаляет её. Без выбора реклама показывается во всех странах.</div>
+        </div>
+      </details>
+
+      <details class="card" data-sum="s-neg">
+        <summary><b>Минус-слова</b><span class="sum" id="s-neg"></span></summary>
+        <div class="body">
+          <div class="row">
+            <label><input type="checkbox" id="neg_on" checked> Добавлять</label>
+            <label><input type="checkbox" id="neg_builtin" checked> Встроенный список по языку</label>
+          </div>
+          <div class="grid">
+            <div><label>От Gemini на кампанию (0–100)</label><input id="neg_ai" type="number" min="0" max="100" value="50"></div>
+            <div><label>Соответствие</label>
+              <select id="neg_match"><option value="phrase">Phrase</option><option value="broad">Broad</option><option value="exact">Exact</option></select></div>
+          </div>
+          <label style="margin-top:10px">Свои слова (по одному на строку или через запятую)</label>
+          <textarea id="neg_custom" style="min-height:54px"></textarea>
+          <div class="hint">Слова, совпадающие с вашими ключами, убираются автоматически.</div>
+        </div>
+      </details>
+
+      <details class="card" data-sum="s-text">
+        <summary><b>Тексты и проверки</b><span class="sum" id="s-text"></span></summary>
+        <div class="body">
+          <div class="row">
+            <label><input type="checkbox" id="policy" checked> Проверять тексты по правилам Google</label>
+          </div>
+          <div class="grid" style="margin-bottom:10px">
+            <div><label>Доп. страниц сайта (0–6)</label><input id="pages" type="number" min="0" max="6" value="3"></div>
+          </div>
+          <label>Пожелания к текстам</label>
+          <input id="notes" placeholder="например: упор на бесплатную доставку">
+        </div>
+      </details>
+
+      <details class="card" data-sum="s-ext">
+        <summary><b>Расширения</b><span class="sum" id="s-ext"></span></summary>
+        <div class="body">
+          <div class="grid" style="grid-template-columns:1fr 1fr; align-items:end">
+            <div>
+              <label style="display:flex; gap:6px; align-items:center; color:var(--text); font-size:13px"><input type="checkbox" id="ext_callouts_on" style="width:auto" checked> Callouts</label>
+              <label style="margin-top:6px">Количество (2–10)</label>
+              <input id="ext_callouts" type="number" min="2" max="10" value="8">
+            </div>
+            <div>
+              <label style="display:flex; gap:6px; align-items:center; color:var(--text); font-size:13px"><input type="checkbox" id="ext_sitelinks_on" style="width:auto" checked> Sitelinks</label>
+              <label style="margin-top:6px">Количество (2–6)</label>
+              <input id="ext_sitelinks" type="number" min="2" max="6" value="6">
+            </div>
+          </div>
+          <div class="hint">Снимите галочку, чтобы вид расширений не попал в CSV. Они идут в тот же файл. Callouts привязываются к первой группе, sitelinks ведут на разные реальные страницы сайта.</div>
+        </div>
+      </details>
+
+      <button id="go">Сгенерировать CSV</button>
+      <div id="err" class="err"></div>
+    </div>
+
+    <div class="right">
+      <div id="empty" class="card empty">Здесь появится результат.<br>Вставьте ссылку слева и нажмите «Сгенерировать CSV».</div>
+
+      <div id="progress" class="card" hidden>
+        <div class="row" style="justify-content:space-between; margin-bottom:8px">
+          <b id="pmsg">Запуск…</b><span id="ptime" class="muted"></span>
+        </div>
+        <div class="bar"><div id="pbar"></div></div>
+        <div id="plog" class="muted" style="margin-top:10px; font-size:12px; max-height:140px; overflow:auto"></div>
+      </div>
+
+      <div id="result" hidden>
+        <div class="card">
+          <h2>Анализ сайтов</h2>
+          <div id="sites"></div>
+          <div id="warns" class="warn"></div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <h2 style="margin:0">Предпросмотр</h2>
+            <button id="dl-zip" class="small" hidden>Скачать ZIP — отдельный CSV на каждый сайт</button>
+            <button id="dl" class="sec small">Один общий CSV</button>
+            <span id="count" class="muted"></span>
+          </div>
+          <div class="tablewrap"><table id="tbl"></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== HISTORY ===================== -->
+  <div id="v-history" hidden>
+    <div id="hlist"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const COUNTRIES = ['Albania','Argentina','Armenia','Australia','Austria','Azerbaijan','Belarus','Belgium','Bosnia and Herzegovina','Brazil','Bulgaria','Canada','Chile','China','Colombia','Croatia','Cyprus','Czechia','Denmark','Egypt','Estonia','Finland','France','Georgia','Germany','Greece','Hungary','Iceland','India','Indonesia','Ireland','Israel','Italy','Japan','Kazakhstan','Kyrgyzstan','Latvia','Lithuania','Luxembourg','Malta','Mexico','Moldova','Montenegro','Netherlands','New Zealand','North Macedonia','Norway','Poland','Portugal','Romania','Saudi Arabia','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sweden','Switzerland','Thailand','Turkey','Ukraine','United Arab Emirates','United Kingdom','United States','Uzbekistan','Vietnam'];
+$('countries').innerHTML = COUNTRIES.map(c => `<option value="${c}">`).join('');
+
+let jobId = '', locations = [], lastResult = null;
+
+/* ---------- views ---------- */
+function showView(v) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.view === v));
+  $('v-create').hidden = v !== 'create'; $('v-history').hidden = v !== 'history';
+  if (v === 'history') loadHistory();
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => showView(t.dataset.view));
+
+/* ---------- saved settings ---------- */
+const FIELDS = ['urls','about','campaigns','ad_groups','keywords','ads','headlines','descriptions','budget_fixed','budget_min','budget_max',
+  'max_cpc','status','language','notes','neg_ai','neg_match','neg_custom','pages','ext_callouts','ext_sitelinks'];
+const CHECKS = ['neg_on','neg_builtin','policy','ext_callouts_on','ext_sitelinks_on'];
+
+function saveSettings() {
+  const d = { locations, bm: document.querySelector('input[name=bm]:checked').value,
+    mt: [...document.querySelectorAll('input[name=mt]:checked')].map(c => c.value) };
+  FIELDS.forEach(f => d[f] = $(f).value);
+  CHECKS.forEach(f => d[f] = $(f).checked);
+  try { localStorage.setItem('settings', JSON.stringify(d)); } catch (e) {}
+}
+function loadSettings() {
+  let d; try { d = JSON.parse(localStorage.getItem('settings') || 'null'); } catch (e) {}
+  try { localStorage.removeItem('apikey'); } catch (e) {}
+  if (!d) return;
+  FIELDS.forEach(f => { if (d[f] != null) $(f).value = d[f]; });
+  CHECKS.forEach(f => { if (d[f] != null) $(f).checked = d[f]; });
+  if (d.bm) document.querySelector(`input[name=bm][value=${d.bm}]`).checked = true;
+  if (d.mt) document.querySelectorAll('input[name=mt]').forEach(c => c.checked = d.mt.includes(c.value));
+  locations = d.locations || [];
+}
+
+/* ---------- one-line summaries in section headers ---------- */
+function summaries() {
+  const v = id => $(id).value, bm = document.querySelector('input[name=bm]:checked').value;
+  const mt = [...document.querySelectorAll('input[name=mt]:checked')].map(c => c.value).join('/') || 'phrase';
+  $('s-struct').textContent = `${v('campaigns')} камп · ${v('ad_groups')} групп · ${v('keywords')} ключей · ${mt}`;
+  $('s-budget').textContent = `${bm === 'fixed' ? '$' + v('budget_fixed') : '$' + v('budget_min') + '–' + v('budget_max')} · CPC $${v('max_cpc')} · ${v('status')}`;
+  $('s-loc').textContent = locations.length ? locations.join(', ') : 'все страны';
+  $('s-neg').textContent = $('neg_on').checked ? `вкл · Gemini ${v('neg_ai')}${$('neg_builtin').checked ? ' + список' : ''}` : 'выкл';
+  $('s-text').textContent = `проверка ${$('policy').checked ? 'вкл' : 'выкл'} · стр. ${v('pages')}`;
+  const ext = [$('ext_callouts_on').checked && `callouts ${v('ext_callouts')}`, $('ext_sitelinks_on').checked && `sitelinks ${v('ext_sitelinks')}`].filter(Boolean);
+  $('s-ext').textContent = ext.length ? ext.join(' · ') : 'не добавлять';
+}
+function onChange() { saveSettings(); summaries(); }
+document.addEventListener('input', onChange);
+document.addEventListener('change', onChange);
+
+/* ---------- budget toggle ---------- */
+function budgetMode() {
+  const range = document.querySelector('input[name=bm]:checked').value === 'range';
+  $('bfixed').hidden = range; $('bmin').hidden = !range; $('bmax').hidden = !range;
+}
+document.querySelectorAll('input[name=bm]').forEach(r => r.addEventListener('change', budgetMode));
+
+/* ---------- locations ---------- */
+function renderLocs() {
+  $('locs').innerHTML = locations.map((l, i) => `<span class="chip" data-i="${i}" title="Удалить">${esc(l)} ✕</span>`).join('');
+  onChange();
+}
+function addLoc() {
+  const v = $('loc_in').value.trim();
+  if (v && !locations.some(l => l.toLowerCase() === v.toLowerCase())) locations.push(v);
+  $('loc_in').value = ''; renderLocs();
+}
+$('loc_in').addEventListener('change', addLoc);
+$('loc_in').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); addLoc(); } };
+$('locs').onclick = e => { const c = e.target.closest('.chip'); if (c) { locations.splice(+c.dataset.i, 1); renderLocs(); } };
+
+loadSettings(); budgetMode(); renderLocs();
+
+/* ---------- generate ---------- */
+$('go').onclick = async () => {
+  $('err').textContent = ''; $('result').hidden = true; $('empty').hidden = true;
+  const key = $('apikey').value.trim();
+  try { localStorage.removeItem('apikey'); } catch (e) {}
+  const settings = {
+    campaigns: $('campaigns').value, ad_groups: $('ad_groups').value, keywords: $('keywords').value,
+    ads: $('ads').value, headlines: $('headlines').value, descriptions: $('descriptions').value,
+    max_cpc: $('max_cpc').value, status: $('status').value, language: $('language').value, notes: $('notes').value,
+    about: $('about').value, pages: $('pages').value, policy: $('policy').checked,
+    budget_mode: document.querySelector('input[name=bm]:checked').value,
+    budget_fixed: $('budget_fixed').value, budget_min: $('budget_min').value, budget_max: $('budget_max').value,
+    match_types: [...document.querySelectorAll('input[name=mt]:checked')].map(c => c.value),
+    locations, neg_on: $('neg_on').checked, neg_builtin: $('neg_builtin').checked,
+    neg_ai: $('neg_ai').value, neg_match: $('neg_match').value, neg_custom: $('neg_custom').value,
+    ext_callouts_on: $('ext_callouts_on').checked, ext_callouts: $('ext_callouts').value,
+    ext_sitelinks_on: $('ext_sitelinks_on').checked, ext_sitelinks: $('ext_sitelinks').value,
+  };
+  $('go').disabled = true; $('go').textContent = 'Идёт генерация…';
+  $('progress').hidden = false; $('pbar').style.width = '0'; $('pmsg').textContent = 'Запуск…';
+  $('ptime').textContent = ''; $('plog').innerHTML = '';
+  try {
+    const r = await fetch('/api/start', { method: 'POST', body: JSON.stringify({
+      urls: $('urls').value.split('\n'), api_key: key, settings, profile: window.vzhuhProfile || {} }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    jobId = d.id;
+    await poll(d.id);
+  } catch (e) { $('err').textContent = e.message; $('progress').hidden = true; $('empty').hidden = !!lastResult; $('result').hidden = !lastResult; }
+  $('go').disabled = false; $('go').textContent = 'Сгенерировать CSV';
+};
+
+const fmt = s => s >= 60 ? Math.floor(s / 60) + ' мин ' + (s % 60) + ' с' : s + ' с';
+
+async function poll(id) {
+  for (;;) {
+    const s = await (await fetch('/api/status?id=' + id)).json();
+    if (s.error && !s.finished) throw new Error(s.error);
+    const pct = Math.round(100 * s.done / s.total);
+    $('pbar').style.width = pct + '%';
+    $('pmsg').textContent = s.finished ? (s.error ? 'Ошибка' : 'Готово') : `${pct}% — ${s.msg}`;
+    $('ptime').textContent = 'Прошло ' + fmt(s.elapsed) + (s.eta != null ? ' · осталось ≈ ' + fmt(s.eta) : '');
+    $('plog').innerHTML = s.log.map(esc).join('<br>');
+    $('plog').scrollTop = 1e6;
+    if (s.finished) {
+      if (s.error) throw new Error(s.error);
+      $('progress').hidden = true;
+      return render(s.result);
+    }
+    await new Promise(r => setTimeout(r, 1000));
+  }
+}
+
+function render(d) {
+  lastResult = d;
+  $('empty').hidden = true; $('progress').hidden = true;
+  $('sites').innerHTML = d.sites.map((s, si) => s.error
+    ? `<div class="site"><b>${esc(s.url)}</b><div class="err">${esc(s.error)}</div></div>`
+    : `<div class="site"><div class="camp" style="padding-left:0"><span><b>${esc(s.url)}</b> — ${esc(s.topic)} <span class="muted">(${esc(s.language)}, доп. страниц: ${s.pages})</span></span>
+       <button class="small dl-site" data-site="${si}">Скачать CSV</button></div>
+       <div class="muted">${esc(s.summary)}</div>
+       <div class="muted">Кампаний ${s.stats.campaigns} · групп ${s.stats.ad_groups} · ключей ${s.stats.keywords} · объявлений ${s.stats.ads} · минус-слов ${s.stats.negatives}${s.stats.callouts || s.stats.sitelinks ? ` · callouts ${s.stats.callouts} · sitelinks ${s.stats.sitelinks}` : ''}</div>
+       ${s.campaigns.map(c => `<div class="camp"><span>${esc(c.name)} <span class="muted">— ключей ${c.keywords}, объявлений ${c.ads}</span></span>
+         <button class="sec small regen" data-site="${si}" data-camp="${c.idx}">Перегенерировать</button></div>`).join('')}
+       </div>`).join('');
+  $('warns').innerHTML = d.warnings.map(w => '⚠ ' + esc(w)).join('<br>');
+  const cols = d.columns.filter(c => d.rows.some(r => r[c]));
+  $('tbl').innerHTML = '<tr>' + cols.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>' +
+    d.rows.map(r => '<tr>' + cols.map(c => `<td>${esc(r[c])}</td>`).join('') + '</tr>').join('');
+  $('count').textContent = d.rows.length + ' строк';
+  $('dl-zip').hidden = d.sites.filter(s => !s.error).length < 2;
+  $('result').hidden = false;
+}
+
+/* ---------- regenerate one campaign ---------- */
+$('sites').onclick = async e => {
+  const dl = e.target.closest('.dl-site');
+  if (dl) { const s = lastResult.sites[+dl.dataset.site]; return download(`google_ads_${s.host}_${stamp()}.csv`, s.csv); }
+  const b = e.target.closest('.regen'); if (!b) return;
+  document.querySelectorAll('.regen').forEach(x => x.disabled = true);
+  b.textContent = 'Генерирую…'; $('err').textContent = '';
+  try {
+    const r = await fetch('/api/regen', { method: 'POST', body: JSON.stringify({
+      id: jobId, site: b.dataset.site, camp: b.dataset.camp, api_key: $('apikey').value.trim() }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    render(d);
+  } catch (err) {
+    $('err').textContent = err.message;
+    document.querySelectorAll('.regen').forEach(x => { x.disabled = false; x.textContent = 'Перегенерировать'; });
+  }
+};
+
+/* ---------- downloads ---------- */
+function download(name, text) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv;charset=utf-8' }));
+  a.download = name; a.click();
+}
+const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`; };
+const baseName = () => {
+  try { return new URL((lastResult.sites.find(s => !s.error) || {}).url).hostname.replace(/^www\./, ''); } catch (e) { return 'ads'; }
+};
+$('dl-zip').onclick = () => { window.location = '/api/zip?id=' + jobId; };
+$('dl').onclick = () => download(`google_ads_${baseName()}_${stamp()}.csv`, lastResult.csv);
+
+/* ---------- history ---------- */
+async function loadHistory() {
+  $('hlist').innerHTML = '<div class="card empty">Загружаю…</div>';
+  try {
+    const list = await (await fetch('/api/history')).json();
+    $('hlist').innerHTML = list.length ? list.map(h => `<div class="card hist">
+        <div><b>${esc(new Date(h.ts * 1000).toLocaleString())}</b>
+          <div>${h.urls.map(esc).join(', ')}</div>
+          <div class="muted">${esc(h.topics.filter(Boolean).join(' · '))} — кампаний ${h.campaigns}, строк ${h.rows}</div></div>
+        <div class="row" style="margin:0"><button class="small open" data-id="${h.id}">Открыть</button>
+          <button class="small danger del" data-id="${h.id}">Удалить</button></div></div>`).join('')
+      : '<div class="card empty">История пуста. Сгенерированные CSV сохраняются автоматически.</div>';
+  } catch (e) { $('hlist').innerHTML = `<div class="card err">${esc(e.message)}</div>`; }
+}
+$('hlist').onclick = async e => {
+  const o = e.target.closest('.open'), d = e.target.closest('.del');
+  try {
+    if (o) {
+      const r = await (await fetch('/api/history/load?id=' + o.dataset.id)).json();
+      if (r.error) throw new Error(r.error);
+      jobId = r.id; render(r.result); showView('create');
+    } else if (d && confirm('Удалить эту запись из истории?')) {
+      await fetch('/api/history/delete', { method: 'POST', body: JSON.stringify({ id: d.dataset.id }) });
+      loadHistory();
+    }
+  } catch (err) { alert(err.message); }
+};
+summaries();
+
+(async function () {
+  const args = new URLSearchParams(location.hash.slice(1));
+  if (args.has('profile')) {
+    try {
+      const p = JSON.parse(args.get('profile'));
+      window.vzhuhProfile = {key: p.key, name: p.name, site: p.site, company: p.company};
+      $('urls').value = p.site;
+      $('urls').readOnly = true;
+      const label = document.createElement('p');
+      label.textContent = 'Профиль: ' + p.name + ' · Компания: ' + p.company;
+      $('urls').before(label);
+    } catch (e) { $('err').textContent = 'Не удалось прочитать выбранный профиль.'; }
+  }
+  if (args.has('history')) {
+    try {
+      const r = await (await fetch('/api/history/load?id=' + encodeURIComponent(args.get('history')))).json();
+      if (r.error) throw new Error(r.error);
+      jobId = r.id; render(r.result); showView('create');
+    } catch(e) { $('err').textContent = e.message; }
+  }
+})();
+
+</script>
+</body>
+</html>

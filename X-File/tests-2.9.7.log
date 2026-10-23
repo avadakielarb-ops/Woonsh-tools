@@ -1,0 +1,14 @@
+test_ai_rejects_unseen_url (__main__.Regression.test_ai_rejects_unseen_url) ... ok
+test_country_allowlist (__main__.Regression.test_country_allowlist) ... ok
+test_default_browser_and_adapters (__main__.Regression.test_default_browser_and_adapters) ... ok
+test_fallback_and_history_without_api_key (__main__.Regression.test_fallback_and_history_without_api_key) ... ok
+test_summary (__main__.Regression.test_summary) ... ok
+test_update_bad_hash_keeps_previous (__main__.Regression.test_update_bad_hash_keeps_previous) ... ok
+test_update_real_frozen_executable (__main__.Regression.test_update_real_frozen_executable) ... ok
+test_update_replaces_main_and_cleans_files (__main__.Regression.test_update_replaces_main_and_cleans_files) ... ok
+test_update_startup_failure_rolls_back (__main__.Regression.test_update_startup_failure_rolls_back) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 8.016s
+
+OK

@@ -1,0 +1,36 @@
+# ДЫРА №3: «первая внешняя ссылка» легко оказывается соцсетью или баннером.
+# Домены из этого списка НЕ считаются сайтом фирмы.
+facebook.com
+linkedin.com
+twitter.com
+x.com
+instagram.com
+youtube.com
+tiktok.com
+pinterest.com
+yelp.com
+crunchbase.com
+bloomberg.com
+glassdoor.com
+indeed.com
+trustpilot.com
+google.com
+maps.google.com
+apple.com
+microsoft.com
+adobe.com
+trustarc.com
+onetrust.com
+cookiepedia.co.uk
+# Сервисы самого D&B и партнёрские баннеры на карточке. Живой замер на карточке
+# США: среди внешних ссылок оказались app.dnbhoovers.com, app.lattice-engines.com
+# и submit-irm.trustarc.eu — запасной путь «первая внешняя ссылка» мог взять их
+# вместо сайта фирмы и записать в Excel рекламу.
+dnbhoovers.com
+lattice-engines.com
+trustarc.eu
+dnb.co
+dandb.com
+hoovers.com
+bisnode.com
+altares.
