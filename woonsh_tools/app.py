@@ -102,60 +102,54 @@ class App:
 
         # -- Модули --
 
-        # 1. Поиск фирм
-        companies_page = self._placeholder("Поиск фирм",
-            "Поиск компаний по стране и направлению.\n"
-            "19 гео-драйверов, DnB, реестры, Gemini, Telegram-бот.")
-        self.nb.add(companies_page, text="Поиск фирм", group="ПОИСК ФИРМ")
+        from woonsh_tools.companies.panel import CompaniesPanel
+        from woonsh_tools.drive.panel import DrivePanel
+        from woonsh_tools.profiles.panel import ProfilesPanel
+        from woonsh_tools.ads.panel import AdsPanel, ReviewPanel
+        from woonsh_tools.documents.panel import DocumentsPanel
+        from woonsh_tools.update.panel import SettingsPanel
 
-        # 2. Статистика
+        # 1. Поиск фирм
+        self.companies_panel = CompaniesPanel(self.nb, self)
+        self.nb.add(self.companies_panel, text="Поиск фирм",
+                    group="ПОИСК ФИРМ")
+
+        # 2. Статистика (placeholder — data comes from companies)
         stats_page = self._placeholder("Статистика",
             "Сводные показатели по странам:\n"
             "компании с сайтом, без сайта, PDF, проверки.")
         self.nb.add(stats_page, text="Статистика", group="ПОИСК ФИРМ")
 
         # 3. Google Drive
-        drive_page = self._placeholder("Загрузка на Drive",
-            "Сопоставление PDF с компаниями.\n"
-            "Загрузка через rclone, SHA-256 проверка, ссылки в Excel.")
-        self.nb.add(drive_page, text="Загрузка", group="GOOGLE DRIVE")
+        self.drive_panel = DrivePanel(self.nb, self)
+        self.nb.add(self.drive_panel, text="Загрузка", group="GOOGLE DRIVE")
 
         # 4. Профили
-        profiles_page = self._placeholder("Профили",
-            "Таблицы профилей, копирование реквизитов.\n"
-            "DPAPI-шифрование, 30с авто-очистка буфера.")
-        self.nb.add(profiles_page, text="Профили", group="GOOGLE DRIVE")
+        self.profiles_panel = ProfilesPanel(self.nb, self)
+        self.nb.add(self.profiles_panel, text="Профили", group="GOOGLE DRIVE")
 
         # 5. CSV Генератор
-        ads_page = self._placeholder("Генератор CSV",
-            "Google Ads кампании через Gemini API.\n"
-            "ThreadPoolExecutor(4), MODEL_CHAIN, CDP браузер-режим,\n"
-            "batch queue, авторемонт, DKI, бан-категории.")
-        self.nb.add(ads_page, text="Генератор CSV", group="GOOGLE ADS")
+        self.ads_panel = AdsPanel(self.nb, self)
+        self.nb.add(self.ads_panel, text="Генератор CSV", group="GOOGLE ADS")
 
         # 6. Проверка рекламы
-        review_page = self._placeholder("Проверка рекламы",
-            "Валидация структуры, длин, повторов.\n"
-            "SHA-256 manual approval, редактор.")
-        self.nb.add(review_page, text="Проверка", group="GOOGLE ADS")
+        self.review_panel = ReviewPanel(self.nb, self)
+        self.nb.add(self.review_panel, text="Проверка", group="GOOGLE ADS")
 
         # 7. Документы
-        docs_page = self._placeholder("Документы",
-            "MRZ-парсинг (TD3/TD1), OCR, Gemini распознавание.\n"
-            "SHA-256 дедуп, DPAPI, front/back пары.")
-        self.nb.add(docs_page, text="Документы", group="ДОКУМЕНТАЦИЯ")
+        self.documents_panel = DocumentsPanel(self.nb, self)
+        self.nb.add(self.documents_panel, text="Документы",
+                    group="ДОКУМЕНТАЦИЯ")
 
-        # 8. Склад документов
+        # 8. Склад документов (placeholder — needs document_stock module)
         stock_page = self._placeholder("Склад",
             "Предварительная загрузка комплектов документов.\n"
             "ZIP/RAR, path traversal protection, назначение профилям.")
         self.nb.add(stock_page, text="Склад", group="ДОКУМЕНТАЦИЯ")
 
         # 9. Настройки
-        settings_page = self._placeholder("Настройки",
-            "Gemini API, Google Drive, Telegram, таблицы.\n"
-            "Обновления через GitHub Releases.")
-        self.nb.add(settings_page, text="Настройки", group="СИСТЕМА")
+        self.settings_panel = SettingsPanel(self.nb, self)
+        self.nb.add(self.settings_panel, text="Настройки", group="СИСТЕМА")
 
     def _placeholder(self, title, description):
         """Страница-заглушка для ещё не подключённого модуля."""
@@ -190,6 +184,8 @@ class App:
 
 
 def main():
+    from woonsh_tools.update.updater import confirm_start
+    confirm_start()
     app = App()
     app.root.mainloop()
 
