@@ -24,6 +24,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse, urldefrag, urljoin, unquote
 
+from woonsh_tools.ads.validation import check, manually_approved
 from woonsh_tools.core.gemini import GeminiClient
 
 CSV_COLUMNS = [
