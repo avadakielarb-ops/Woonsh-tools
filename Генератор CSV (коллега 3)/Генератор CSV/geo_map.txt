@@ -1,0 +1,30 @@
+Дніпро|Dnipro,Dnipropetrovsk Oblast,Ukraine
+Одеса|Odesa,Odesa Oblast,Ukraine
+Київ|Kyiv,Kyiv city,Ukraine
+Львів|Lviv,Lviv Oblast,Ukraine
+Харків|Kharkiv,Kharkiv Oblast,Ukraine
+Запоріжжя|Zaporizhzhia,Zaporizhzhia Oblast,Ukraine
+Вінниця|Vinnytsia,Vinnytsia Oblast,Ukraine
+Полтава|Poltava,Poltava Oblast,Ukraine
+Миколаїв|Mykolaiv,Mykolaiv Oblast,Ukraine
+Херсон|Kherson,Kherson Oblast,Ukraine
+Чернігів|Chernihiv,Chernihiv Oblast,Ukraine
+Суми|Sumy,Sumy Oblast,Ukraine
+Житомир|Zhytomyr,Zhytomyr Oblast,Ukraine
+Рівне|Rivne,Rivne Oblast,Ukraine
+Луцьк|Lutsk,Volyn Oblast,Ukraine
+Ужгород|Uzhhorod,Zakarpattia Oblast,Ukraine
+Тернопіль|Ternopil,Ternopil Oblast,Ukraine
+Хмельницький|Khmelnytskyi,Khmelnytskyi Oblast,Ukraine
+Черкаси|Cherkasy,Cherkasy Oblast,Ukraine
+Кропивницький|Kropyvnytskyi,Kirovohrad Oblast,Ukraine
+Івано-Франківськ|Ivano-Frankivsk,Ivano-Frankivsk Oblast,Ukraine
+Чернівці|Chernivtsi,Chernivtsi Oblast,Ukraine
+Україна|Ukraine
+Іспанія|Spain
+Франція|France
+Італія|Italy
+Угорщина|Hungary
+Норвегія|Norway
+Хорватія|Croatia
+Чехія|Czech Republic
