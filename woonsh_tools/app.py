@@ -108,6 +108,7 @@ class App:
         from woonsh_tools.profiles.panel import ProfilesPanel
         from woonsh_tools.ads.panel import AdsPanel, ReviewPanel
         from woonsh_tools.documents.panel import DocumentsPanel
+        from woonsh_tools.documents.stock import StockPanel
         from woonsh_tools.update.panel import SettingsPanel
 
         # 1. Поиск фирм
@@ -140,33 +141,13 @@ class App:
         self.nb.add(self.documents_panel, text="Документы",
                     group="ДОКУМЕНТАЦИЯ")
 
-        # 8. Склад документов (placeholder — needs document_stock module)
-        stock_page = self._placeholder("Склад",
-            "Предварительная загрузка комплектов документов.\n"
-            "ZIP/RAR, path traversal protection, назначение профилям.")
-        self.nb.add(stock_page, text="Склад", group="ДОКУМЕНТАЦИЯ")
+        # 8. Склад документов
+        self.stock_panel = StockPanel(self.nb, self, self.app_data_dir)
+        self.nb.add(self.stock_panel, text="Склад", group="ДОКУМЕНТАЦИЯ")
 
         # 9. Настройки
         self.settings_panel = SettingsPanel(self.nb, self)
         self.nb.add(self.settings_panel, text="Настройки", group="СИСТЕМА")
-
-    def _placeholder(self, title, description):
-        """Страница-заглушка для ещё не подключённого модуля."""
-        frame = ttk.Frame(self.nb)
-        inner = ttk.Frame(frame, padding=40)
-        inner.pack(fill="both", expand=True)
-
-        ttk.Label(inner, text=title, style="Title.TLabel").pack(
-            anchor="w", pady=(0, 8))
-        ttk.Label(inner, text=description, style="Muted.TLabel",
-                  justify="left", wraplength=500).pack(anchor="w", pady=(0, 20))
-
-        badge = ttk.Frame(inner)
-        badge.pack(anchor="w")
-        tk.Label(badge, text=" В РАЗРАБОТКЕ ", bg="#4a1f2e", fg="#ffd7d7",
-                 font=("Segoe UI Semibold", 9), padx=8, pady=4).pack()
-
-        return frame
 
     def _save_config(self):
         self.cfg["geometry"] = self.root.geometry()
