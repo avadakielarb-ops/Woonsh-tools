@@ -60,8 +60,8 @@ Toplevel красит себя сам.
 ```
 Woonsh-tools/
 ├── launcher.pyw, ЗАПУСК.bat, requirements.txt
-├── CLAUDE.md                   ← вход для ИИ (ведёт в docs/)
-├── docs/                       ← вся документация проекта
+├── CLAUDE.md                   ← вход для ИИ (ведёт в перенос/)
+├── перенос/                       ← вся документация проекта
 ├── woonsh_tools/
 │   ├── app.py                  главное окно, меню
 │   ├── core/                   theme, sidebar, ui_helpers, scroll, secure_store, cdp, gemini, telegram_login (новое)

@@ -8,8 +8,8 @@
 
 ## Этап 0. Подготовка (0.5 дня)
 
-1. Прочитать: `docs/README.md` → `CONCEPT.md` → `FIRMS_LOGIC.md` → `CSV_LOGIC.md` → `MODULE_MAP.md` → `Фирмы/доки/CLAUDE.md`.
-2. Посмотреть `docs/img/firms_window_original.png`, `docs/UI_MOCKUP.html` (открыть в браузере).
+1. Прочитать: `перенос/README.md` → `CONCEPT.md` → `FIRMS_LOGIC.md` → `CSV_LOGIC.md` → `MODULE_MAP.md` → `Фирмы/доки/CLAUDE.md`.
+2. Посмотреть `перенос/img/firms_window_original.png`, `перенос/UI_MOCKUP.html` (открыть в браузере).
 3. `ЗАПУСК.bat`: создавать `.venv` на **Python 3.12** (`py -3.12 -m venv .venv`), ставить зависимости, `playwright install chrome` не нужен (используется установленный Chrome), Playwright ≥ 1.62. Сейчас у владельца запускается 3.14 — колёс нет.
 4. Объединить `requirements.txt` (сейчас там зависимости раннего каркаса `woonsh/` — customtkinter, gspread и т.д., которые не используются): playwright, playwright-stealth, openpyxl, python-docx, telethon<2, pymupdf (для документов коллеги — сверить с X-File), без лишнего.
 
