@@ -1,6 +1,7 @@
 """
 Woonsh Tools — главное приложение.
-Sidebar с модулями: Поиск фирм, CSV Ads, Документы, Drive, Профили.
+Sidebar с модулями: Поиск фирм, Google Ads, Загрузка Google Disk,
+Документация, Настройки.
 """
 
 import os
@@ -104,50 +105,59 @@ class App:
 
         from woonsh_tools.companies.panel import CompaniesPanel
         from woonsh_tools.companies.stats import StatsPanel
-        from woonsh_tools.drive.panel import DrivePanel
         from woonsh_tools.profiles.panel import ProfilesPanel
-        from woonsh_tools.ads.panel import AdsPanel, ReviewPanel
+        from woonsh_tools.ads.panel import AdsPanel
+        from woonsh_tools.drive.companies import DriveCompaniesPanel
+        from woonsh_tools.drive.match_pdf import MatchPdfPanel
+        from woonsh_tools.drive.panel import DrivePanel
         from woonsh_tools.documents.panel import DocumentsPanel
         from woonsh_tools.documents.stock import StockPanel
         from woonsh_tools.update.panel import SettingsPanel
 
-        # 1. Поиск фирм
+        # --- ПОИСК ФИРМ ---
         self.companies_panel = CompaniesPanel(self.nb, self)
-        self.nb.add(self.companies_panel, text="Поиск фирм",
+        self.nb.add(self.companies_panel, text="Поиск",
                     group="ПОИСК ФИРМ")
 
-        # 2. Гео и выдача
         self.geo_panel = StatsPanel(self.nb, self)
-        self.nb.add(self.geo_panel, text="Гео и выдача", group="ПОИСК ФИРМ")
+        self.nb.add(self.geo_panel, text="Гео и выдача",
+                    group="ПОИСК ФИРМ")
 
-        # 3. Генератор CSV
-        self.ads_panel = AdsPanel(self.nb, self)
-        self.nb.add(self.ads_panel, text="Генератор CSV", group="GOOGLE ADS")
-
-        # 4. Профили
+        # --- GOOGLE ADS ---
         self.profiles_panel = ProfilesPanel(self.nb, self)
-        self.nb.add(self.profiles_panel, text="Профили", group="GOOGLE ADS")
+        self.nb.add(self.profiles_panel, text="Профили",
+                    group="GOOGLE ADS")
 
-        # 5. Компании (привязка фирм к аккаунтам)
-        self.review_panel = ReviewPanel(self.nb, self)
-        self.nb.add(self.review_panel, text="Компании", group="GOOGLE ADS")
+        self.ads_panel = AdsPanel(self.nb, self)
+        self.nb.add(self.ads_panel, text="Компании",
+                    group="GOOGLE ADS")
 
-        # 6. Google Drive — Загрузка PDF
+        # --- ЗАГРУЗКА GOOGLE DISK ---
+        self.drive_companies = DriveCompaniesPanel(self.nb, self)
+        self.nb.add(self.drive_companies, text="Компании",
+                    group="ЗАГРУЗКА GOOGLE DISK")
+
+        self.drive_match = MatchPdfPanel(self.nb, self)
+        self.nb.add(self.drive_match, text="Сопоставление PDF",
+                    group="ЗАГРУЗКА GOOGLE DISK")
+
         self.drive_panel = DrivePanel(self.nb, self)
-        self.nb.add(self.drive_panel, text="Загрузка", group="GOOGLE DRIVE")
+        self.nb.add(self.drive_panel, text="Загрузка на Drive",
+                    group="ЗАГРУЗКА GOOGLE DISK")
 
-        # 7. Документы
+        # --- ДОКУМЕНТАЦИЯ ---
         self.documents_panel = DocumentsPanel(self.nb, self, self.app_data_dir)
         self.nb.add(self.documents_panel, text="Документы",
                     group="ДОКУМЕНТАЦИЯ")
 
-        # 8. Склад документов
         self.stock_panel = StockPanel(self.nb, self, self.app_data_dir)
-        self.nb.add(self.stock_panel, text="Склад", group="ДОКУМЕНТАЦИЯ")
+        self.nb.add(self.stock_panel, text="Склад",
+                    group="ДОКУМЕНТАЦИЯ")
 
-        # 9. Настройки
+        # --- НАСТРОЙКИ ---
         self.settings_panel = SettingsPanel(self.nb, self)
-        self.nb.add(self.settings_panel, text="Настройки", group="СИСТЕМА")
+        self.nb.add(self.settings_panel, text="Настройки",
+                    group="СИСТЕМА")
 
     def _save_config(self):
         self.cfg["geometry"] = self.root.geometry()
