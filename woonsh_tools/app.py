@@ -56,6 +56,9 @@ class App:
         self.q = queue.Queue()
         self.working = False
 
+        from woonsh_tools.core.gemini import GeminiClient
+        self.gemini_engine = GeminiClient()
+
         self.root = tk.Tk()
         self.root.withdraw()
         self.root.title(f"Woonsh Tools v{VERSION}")

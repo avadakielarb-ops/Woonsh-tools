@@ -73,7 +73,7 @@ Woonsh-tools/
 │   │   └── bot_auto.py         автоматическая проверка ботом
 │   ├── ads/                    КОМПАНИИ (ЦСВ Вайт, нарезка ppc_gemini.pyw)
 │   │   ├── paths, constants, prompts, variants, schema, landing, history
-│   │   ├── gemini_api.py, browser_gen.py
+│   │   ├── browser_gen.py          (Gemini-клиент — общий core/gemini.py)
 │   │   ├── banned.py, text_rules.py, geo.py, validation.py, repair.py
 │   │   ├── csv_builder.py, negatives.py, rework.py
 │   │   ├── panel.py, batch.py

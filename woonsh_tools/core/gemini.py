@@ -305,6 +305,9 @@ class GeminiClient:
                 f"Gemini не вернул контент: {json.dumps(data)[:300]}")
         return text
 
+    def model_order(self, api_key):
+        return self._model_order(api_key)
+
     def _model_order(self, api_key):
         first = [os.environ.get("GEMINI_MODEL"), self._good_model]
         order = []

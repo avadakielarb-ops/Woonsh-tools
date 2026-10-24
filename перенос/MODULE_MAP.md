@@ -115,7 +115,7 @@ def проверить(гео: list[str], линия: str, stop: Event, log) -> 
 | 1008–1057 | версия и загрузка промпта | `ads/prompts.py` |
 | 1058–1126 | RESPONSE_SCHEMA | `ads/schema.py` |
 | 1127–1195 | `page_text`, `fetch_landing`, `domain_of`, `load_config`, `save_config` | `ads/landing.py` (+ конфиг → общий cfg Woonsh) |
-| 1196–1474 | RateLimited, `_retry_delay`, `_request`, `list_models`, AUTO_MODEL, MODEL_CHAIN, `auto_chain`, `_call_model`, `generate_draft` | `ads/gemini_api.py` — **именно этот код**, сверить и заменить им `core/gemini.py` там, где расходится |
+| 1196–1474 | RateLimited, `_retry_delay`, `_request`, `list_models`, AUTO_MODEL, MODEL_CHAIN, `auto_chain`, `_call_model`, `generate_draft` | `core/gemini.py` — **ОДИН клиент на всё приложение** (ЦСВ, генерация слов, документы). Основа — этот код владельца; из нынешнего `core/gemini.py` оставить только то, чего у владельца нет (THINK_LADDER, `model_order` для документов). Отдельного `ads/gemini_api.py` не делать |
 | 1475–2258 | WebSocket, Tab, chrome/CDP, JS_*, `parse_model_json`, FIX_FORMAT_NOTE, `extract_json`, `browser_generate` | `core/cdp.py` (уже перенесено 1475–2016, сверить) + `ads/browser_gen.py` (`browser_generate` 2017–2258) |
 | 2259–3165 | DKI_RE, `effective_len`, все BANNED_*, SOFT_*, BANNED_TOPICS, TOPICS_SUSPEND, GEO_SUSPENDED, `_scan_*`, gambling, `scrub_description`, AMBIGUOUS_CATEGORY, SOCIAL_CASINO, FREE_PLAY | `ads/banned.py` |
 | 3138–3280 | SNIPPET_TYPES, INFO_INTENT, STRUCTURAL_RE, `_covers_object`, корни слов, `item_keywords`, `headlines_with_keyword`, `bad_symbols`, `shouty_words` | `ads/text_rules.py` |
@@ -137,7 +137,7 @@ def проверить(гео: list[str], линия: str, stop: Event, log) -> 
 | Источник | Куда |
 |---|---|
 | `X-File/ads_generator/app.py:51-75` `_NEG`, `BUILTIN_NEG` | `ads/negatives.py` |
-| `X-File/ads_generator/app.py:305-320` THINK_LADDER | `ads/gemini_api.py` (только API) |
+| `X-File/ads_generator/app.py:305-320` THINK_LADDER | `core/gemini.py` (только режим API) |
 | `X-File/ads_generator/app.py:251, 743` ThreadPoolExecutor | `ads/batch.py` `_runner` |
 | `X-File/ads_generator/app.py` `policy_issue()` — телефон, ссылка/e-mail | `ads/validation.py` |
 
