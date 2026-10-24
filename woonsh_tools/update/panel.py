@@ -93,7 +93,7 @@ class SettingsPanel(ttk.Frame):
         wizard = make_card(self, "Мастер настройки")
         wizard.grid(row=row, column=0, sticky="ew", pady=(0, 10))
         ttk.Button(wizard, text="Запустить мастер настройки",
-                   command=self._show_wizard).pack(anchor="w")
+                   command=self._show_wizard).grid(row=0, column=0, sticky="w")
 
         row += 1
 
