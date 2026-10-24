@@ -116,25 +116,25 @@ class App:
         self.nb.add(self.companies_panel, text="Поиск фирм",
                     group="ПОИСК ФИРМ")
 
-        # 2. Статистика
-        self.stats_panel = StatsPanel(self.nb, self)
-        self.nb.add(self.stats_panel, text="Статистика", group="ПОИСК ФИРМ")
+        # 2. Гео и выдача
+        self.geo_panel = StatsPanel(self.nb, self)
+        self.nb.add(self.geo_panel, text="Гео и выдача", group="ПОИСК ФИРМ")
 
-        # 3. Google Drive
-        self.drive_panel = DrivePanel(self.nb, self)
-        self.nb.add(self.drive_panel, text="Загрузка", group="GOOGLE DRIVE")
-
-        # 4. Профили
-        self.profiles_panel = ProfilesPanel(self.nb, self)
-        self.nb.add(self.profiles_panel, text="Профили", group="GOOGLE DRIVE")
-
-        # 5. CSV Генератор
+        # 3. Генератор CSV
         self.ads_panel = AdsPanel(self.nb, self)
         self.nb.add(self.ads_panel, text="Генератор CSV", group="GOOGLE ADS")
 
-        # 6. Проверка рекламы
+        # 4. Профили
+        self.profiles_panel = ProfilesPanel(self.nb, self)
+        self.nb.add(self.profiles_panel, text="Профили", group="GOOGLE ADS")
+
+        # 5. Компании (привязка фирм к аккаунтам)
         self.review_panel = ReviewPanel(self.nb, self)
-        self.nb.add(self.review_panel, text="Проверка", group="GOOGLE ADS")
+        self.nb.add(self.review_panel, text="Компании", group="GOOGLE ADS")
+
+        # 6. Google Drive — Загрузка PDF
+        self.drive_panel = DrivePanel(self.nb, self)
+        self.nb.add(self.drive_panel, text="Загрузка", group="GOOGLE DRIVE")
 
         # 7. Документы
         self.documents_panel = DocumentsPanel(self.nb, self, self.app_data_dir)
